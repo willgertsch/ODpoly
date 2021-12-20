@@ -17,12 +17,11 @@ obj_function_factory = function(powers, betas) {
   obj_func = function(vars) {
     
     # distinguish between points and weights
-    # can only handle 3 design points at the moment
-    #pts = ceiling(length(vars)/2)
-    pts = 3
     x = vars[1:pts]
-    #w = c(vars[-(1:pts)], 1-vars[-(1:pts)]) # weight constraint implementation
-    w = c(vars[4], vars[5], 1-vars[4]-vars[5])
+    w = vars[(pts+1):(2*pts)]
+    s = sum(w)
+    if (s < 0 | s > 1) # constraint implementation
+      return(-Inf)
     
     # check if x > 0 for fractional poly
     
