@@ -41,7 +41,6 @@ obj_function_factory = function(powers, betas) {
     
     
     # compute eta
-    # additional log terms not implemented yet
     eta = betas[1] + betas[2] * x1 + betas[3] * x2
     
     
