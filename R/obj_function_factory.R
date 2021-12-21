@@ -23,12 +23,26 @@ obj_function_factory = function(powers, betas) {
     if (s < 0 | s > 1) # constraint implementation
       return(-Inf)
     
-    # check if x > 0 for fractional poly
+    
+    # compute x terms
+    if (powers[1] == powers[2]) { # apply correct x function if repeated power
+      if (sum(x<=0)>1) {
+        print("Fractional polynomials are only defined on (0, inf]")
+        return()
+      }
+      
+      x1 = x^powers[1]
+      x2 = log(x) * x^powers[1]
+    }
+    else {
+      x1 = x^powers[1]
+      x2 = x^powers[2]
+    }
     
     
     # compute eta
     # additional log terms not implemented yet
-    eta = betas[1] + betas[2] * x^powers[1] + betas[3] * x^powers[2]
+    eta = betas[1] + betas[2] * x1 + betas[3] * x2
     
     
     # weight function
@@ -40,14 +54,14 @@ obj_function_factory = function(powers, betas) {
     for (i in 1:pts) {
       
       # will need to update to use correct x functions
-      m12 = x[i]^powers[1]
-      m13 = x[i]^powers[2]
-      m23 = x[i]^(powers[1]+powers[2])
+      m12 = x1[i]
+      m13 = x2[i]
+      m23 = x1[i]*x2[i]
       
       M_i = w[i] * sigma[i] * matrix(c(
         1, m12, m13,
-        m12, x[i]^(2*powers[1]), m23,
-        m13, m23, x[i]^(2*powers[2])
+        m12, x1[i]^2, m23,
+        m13, m23, x2[i]^2
       ), ncol=3)
       
       M = M + M_i
