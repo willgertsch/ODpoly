@@ -27,7 +27,7 @@ ODpolyApp <- function(...) {
         actionButton("clear", "Clear all"),
         plotOutput("plot1", click = "plot_click"),
         actionButton("fit", "Find fractional poly"),
-        verbatimTextOutput("model_out")
+        #verbatimTextOutput("model_out")
       )
     )
   )
@@ -96,7 +96,7 @@ ODpolyApp <- function(...) {
     })
     
     # find fractional polynomial algorithm
-    mod <- eventReactive(input$fit, {
+    observeEvent(input$fit, {
       
       # save model data
       model_data = values$DT
@@ -161,14 +161,28 @@ ODpolyApp <- function(...) {
       
       # return
       # give powers labels
-      out = c(coef(mod), p1, p2)
-      names(out) = c(names(out)[1:length(coef(mod))], 'p1', 'p2')
-      out
+      # out = c(coef(mod), p1, p2)
+      # names(out) = c(names(out)[1:length(coef(mod))], 'p1', 'p2')
+      # out
+      
+      # change values in inputs
+      # have to get rid of names
+      p1 = unname(p1)
+      p2 = unname(p2)
+      beta = coef(mod)
+      beta0 = unname(beta[1])
+      beta1 = unname(beta[2])
+      beta2 = unname(beta[3])
+      updateNumericInput(session, "p1", value = p1)
+      updateNumericInput(session, "p2", value = p2)
+      updateNumericInput(session, "b0", value = beta0)
+      updateNumericInput(session, "b1", value = beta1)
+      updateNumericInput(session, "b2", value = beta2)
     })
     
-    output$model_out <- renderPrint(
-      mod()
-    )
+    # output$model_out <- renderPrint(
+    #   mod()
+    # )
   }
   
   
