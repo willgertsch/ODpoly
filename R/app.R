@@ -23,10 +23,10 @@ ODpolyApp <- function(...) {
       mainPanel(
         #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
         #selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
-        actionButton("rem_point", "Remove Last Point"),
-        actionButton("clear", "Clear all"),
         plotOutput("plot1", click = "plot_click"),
         actionButton("fit", "Find fractional poly"),
+        actionButton("rem_point", "Remove Last Point"),
+        actionButton("clear", "Clear all")
         #verbatimTextOutput("model_out")
       )
     )
