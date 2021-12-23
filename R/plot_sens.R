@@ -6,7 +6,7 @@
 plot_sens = function(xvals, vars, betas, powers) {
   
   # compute sens function
-  yvals = sapply(xs, sens, vars, betas, powers)
+  yvals = sapply(xvals, sens, vars, betas, powers)
   
   # old base R plots
   # plot(yvals ~ xvals, type ="l")
