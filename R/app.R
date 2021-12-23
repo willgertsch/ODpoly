@@ -24,7 +24,7 @@ ODpolyApp <- function(...) {
         #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
         #selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
         plotOutput("plot1", click = "plot_click"),
-        actionButton("fit", "Find fractional poly"),
+        actionButton("fit", "Fit"),
         actionButton("rem_point", "Remove Last Point"),
         actionButton("clear", "Clear all")
         #verbatimTextOutput("model_out")
@@ -56,7 +56,9 @@ ODpolyApp <- function(...) {
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +
         #scale_shape_discrete(drop = FALSE) +
-        labs(y = "probability of response", x = "dose")
+        labs(y = "probability of response", x = "dose",
+             title = "Click plot to enter data.\nClick \"Fit\" to fit a fractional polynomial to the data")
+        
       
       # if there non NA values for the predicted values, plot these as well
       if (sum(!is.na(values$DT$yhat)) > 0)
