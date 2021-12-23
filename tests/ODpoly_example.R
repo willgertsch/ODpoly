@@ -1,5 +1,4 @@
 # example usage of ODpoly
-library(metaheuristicOpt)
 
 set.seed(122021)
 

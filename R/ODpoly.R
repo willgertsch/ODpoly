@@ -10,6 +10,7 @@
 # swarm: size of swarm
 # pts: number of design points
 # bound: upper bound for design interval
+library(metaheuristicOpt)
 ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   
   # define objective function
@@ -24,8 +25,8 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   control = list(numPopulation = swarm, maxIter = iter)
   
   # find optimal design
-  sol = metaOpt(obj_func, optimType = "MAX", algorithm = alg, numVar, rangeVar,
-                control)
+  sol = metaOpt(obj_func, optimType = "MAX", algorithm = alg, 
+                                  numVar, rangeVar, control)
   
   # save output
   result = sol$result
