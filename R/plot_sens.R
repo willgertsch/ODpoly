@@ -17,7 +17,9 @@ plot_sens = function(xvals, vars, betas, powers) {
   p = ggplot(mapping = aes(y = yvals, x = xvals)) + 
     geom_line(color = "blue") + 
     geom_hline(yintercept = 0) +
-    theme_bw()
+    theme_bw() +
+    labs(title = "Equivalence Theorem Check") +
+    xlab("x") + ylab("Standardized variance")
   
   return(p)
 }
