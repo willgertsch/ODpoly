@@ -21,8 +21,8 @@ ODpolyApp <- function(...) {
         numericInput("b2", "Beta2", 1, -Inf, Inf, 0.01)
       ),
       mainPanel(
-        radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
-        selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
+        #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
+        #selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
         actionButton("rem_point", "Remove Last Point"),
         actionButton("clear", "Clear all"),
         plotOutput("plot1", click = "plot_click"),
@@ -40,20 +40,22 @@ ODpolyApp <- function(...) {
     values <- reactiveValues()
     values$DT <- data.frame(x = numeric(),
                             y = numeric(),
-                            yhat = numeric(),
-                            color = factor(),
-                            shape = factor())
+                            yhat = numeric()
+                            #color = factor(),
+                            #shape = factor()
+                            )
     
     ## 2. Create a plot
     output$plot1 = renderPlot({
       ggp = ggplot(values$DT, aes(x = x, y = y)) +
-        geom_point(aes(color = color,
-                       shape = shape), size = 5) +
+        # geom_point(aes(color = color,
+        #                shape = shape), size = 5) +
+        geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
         lims(x = c(0, 10), y = c(0, 1)) +
         theme_bw() + 
         # include so that colors don't change as more color/shape chosen
-        scale_color_discrete(drop = FALSE) +
-        scale_shape_discrete(drop = FALSE) +
+        #scale_color_discrete(drop = FALSE) +
+        #scale_shape_discrete(drop = FALSE) +
         labs(y = "probability of response", x = "dose")
       
       # if there non NA values for the predicted values, plot these as well
@@ -73,9 +75,10 @@ ODpolyApp <- function(...) {
       # this gives a binomial response
       add_row <- data.frame(x = input$plot_click$x,
                             y = input$plot_click$y,
-                            yhat = NA,
-                            color = factor(input$color, levels = c("Pink", "Green", "Blue")),
-                            shape = factor(input$shape, levels = c("Circle", "Triangle")))
+                            yhat = NA
+                            #color = factor(input$color, levels = c("Pink", "Green", "Blue")),
+                            #shape = factor(input$shape, levels = c("Circle", "Triangle"))
+                            )
       # add row to the data.frame
       values$DT <- rbind(values$DT, add_row)
     })
@@ -90,9 +93,10 @@ ODpolyApp <- function(...) {
     observeEvent(input$clear, {
       values$DT <- data.frame(x = numeric(),
                               y = numeric(),
-                              yhat = numeric(),
-                              color = factor(),
-                              shape = factor())
+                              yhat = numeric()
+                              #color = factor(),
+                              #shape = factor()
+                              )
     })
     
     # find fractional polynomial algorithm
