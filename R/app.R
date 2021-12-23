@@ -3,6 +3,9 @@ library(shiny)
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
 xs = seq(0, 10, 0.01)
+metaheuristics = c("PSO", "ALO", "GWO", "DA", "FFA", "GA", "GOA", "HS", "MFO",
+                   "SCA", "WOA", "CLONALG", "DE", "SFL", "CSO", "ABC", "KH", 
+                   "CS", "BA", "GBS", "BHO")
 
 ODpolyApp <- function(...) {
   ui <- fluidPage(
@@ -18,7 +21,13 @@ ODpolyApp <- function(...) {
         "Coefficients:",
         numericInput("b0", "Beta0", 1, -Inf, Inf, 0.01), # bad idea to use inf? probably
         numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
-        numericInput("b2", "Beta2", 1, -Inf, Inf, 0.01)
+        numericInput("b2", "Beta2", 1, -Inf, Inf, 0.01),
+        "Algorithm options:",
+        selectInput("alg", "Algorithms", metaheuristics, selected = "DE"),
+        numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
+        numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
+        "Design options:",
+        numericInput("pts", "Design points", 3, 1, 10, 1)
       ),
       mainPanel(
         #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
