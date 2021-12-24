@@ -26,9 +26,9 @@ obj_function_factory = function(powers, betas) {
     
     # compute x terms
     if (powers[1] == powers[2]) { # apply correct x function if repeated power
-      if (sum(x<=0)>1) {
-        print("Fractional polynomials are only defined on (0, inf]")
-        return()
+      if (sum(x<=1)>0) {
+        #print("Fractional polynomials are only defined on (0, inf]")
+        x[x<=1] = 1 # put back in design interval
       }
       
       x1 = x^powers[1]

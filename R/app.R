@@ -63,7 +63,7 @@ ODpolyApp <- function(...) {
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
         geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-        lims(x = c(0, 10), y = c(0, 1)) +
+        lims(x = c(1, 10), y = c(0, 1)) +
         theme_bw() + 
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +

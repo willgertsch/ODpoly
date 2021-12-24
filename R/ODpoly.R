@@ -18,7 +18,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   
   # set up for metaheuristics
   numVar = 2*pts # each point has one weight and last weight is sum of the others
-  d = c(rep(c(0, bound), pts), rep(c(0,1), pts))
+  d = c(rep(c(1, bound), pts), rep(c(0,1), pts))
   rangeVar = matrix(d, nrow = 2)
   
   # algorithm params
@@ -32,7 +32,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   result = sol$result
   
   # plot sensitivity function
-  xs = seq(0, bound, 0.01)
+  xs = seq(1, bound, 0.01)
   p = plot_sens(xs, sol$result, betas, powers)
   
   # return
