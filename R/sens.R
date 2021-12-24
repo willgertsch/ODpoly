@@ -12,10 +12,29 @@ sens = function(z, vars, betas, powers) {
   if (s < 0 | s > 1) # constraint implementation
     return(-Inf)
   
+  # compute x and z terms using correct functional
+  if (powers[1] == powers[2]) { # apply correct x function if repeated power
+    # not sure I need this
+    if (sum(x<=1)>0) {
+      x[x<=1] = 1 # put back in design interval
+    }
+    
+    x1 = x^powers[1]
+    x2 = log(x) * x^powers[1]
+    z1 = z^powers[1]
+    z2 = log(z) * z^powers[2]
+  }
+  else {
+    x1 = x^powers[1]
+    x2 = x^powers[2]
+    z1 = z^powers[1]
+    z2 = z^powers[2]
+  }
+  
   # compute eta
   # additional log terms not implemented yet
-  eta = betas[1] + betas[2] * x^powers[1] + betas[3] * x^powers[2]
-  etaz = betas[1] + betas[2] * z^powers[1] + betas[3] * z^powers[2]
+  eta = betas[1] + betas[2] * x1 + betas[3] * x2
+  etaz = betas[1] + betas[2] * z1 + betas[3] * z2
   
   # weight functions
   sigma = exp(eta)/(1+exp(eta))^2
@@ -28,14 +47,14 @@ sens = function(z, vars, betas, powers) {
   for (i in 1:pts) {
     
     # will need to update to use correct x functions
-    m12 = x[i]^powers[1]
-    m13 = x[i]^powers[2]
-    m23 = x[i]^(powers[1]+powers[2])
+    m12 = x1[i]
+    m13 = x2[i]
+    m23 = x1[i] * x2[i]
     
     M_i = w[i] * sigma[i] * matrix(c(
       1, m12, m13,
-      m12, x[i]^(2*powers[1]), m23,
-      m13, m23, x[i]^(2*powers[2])
+      m12, x1[i]^2, m23,
+      m13, m23, x2[i]^2
     ), ncol=3)
     
     M = M + M_i
@@ -53,7 +72,7 @@ sens = function(z, vars, betas, powers) {
   else {
     # compute sensitivity function
     Minv = solve(M)
-    b = c(1, z^powers[1], z^powers[2])
+    b = c(1, z1, z2)
     y = sigmaz * t(b) %*% Minv %*% b - 3
   }
   
