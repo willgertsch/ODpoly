@@ -39,7 +39,8 @@ ODpolyApp <- function(...) {
         actionButton("clear", "Clear all"),
         #verbatimTextOutput("model_out"),
         plotOutput("sens_plot"),
-        actionButton("find", "Find optimal design")
+        actionButton("find", "Find optimal design"),
+        verbatimTextOutput("design_out")
       )
     )
   )
@@ -247,6 +248,69 @@ ODpolyApp <- function(...) {
       
     })
     
+    # update design output
+    output$design_out = renderPrint({
+      
+      raw = values$OD$design
+      
+      # case if algorithm hasn't run
+      if (length(raw) == 0)
+        out = "No design"
+      else { # all other cases
+        
+        l = length(raw)
+
+        # purge points with zero weight
+        if (sum(raw[(l/2 + 1):l]==0) > 0) {
+          x_indices = which(raw[(l/2 + 1):l]==0)
+          w_indices = x_indices + l/2
+          raw = raw[,-c(x_indices, w_indices)]
+          l = length(raw)
+          print("Purged points with weight 0")
+        }
+        
+
+        # combine weights of identical points
+        xs = raw[1:(l/2)]
+        ws = raw[(l/2+1):l]
+        if (length(unique(xs)) != length(xs)) {
+          dups = xs[duplicated(xs)] # keep track of dups
+          for (d in dups) { # iterate through and combine weights
+            indices = xs == d
+            new_w = sum(ws[indices]) # add w's for a specific duplicate
+            ws[indices] = new_w # update w's; will drop later
+          }
+          xs = unique(xs) # remove duplicates
+          ws = unique(ws)
+          
+          raw = c(xs, ws)
+          l = length(raw)
+          print("Combined identical points")
+        }
+        
+        
+        
+        # labeling
+        # probably a better way to do this
+        labs = character(l)
+        for (i in 1:(l/2)) {
+          labs[i] = paste("x", toString(i), sep = "")
+        }
+        for (i in (l/2 + 1):l) {
+          labs[i] = paste("w", toString(i-l/2), sep = "")
+        }
+        
+        # magic
+        raw = c(raw)
+
+        names(raw) = labs
+        
+        
+        out = raw
+      }
+        
+      out
+    })
   }
   
   
