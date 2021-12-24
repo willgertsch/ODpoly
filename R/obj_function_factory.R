@@ -19,7 +19,7 @@ obj_function_factory = function(powers, betas) {
     # distinguish between points and weights
     x = vars[1:pts]
     w = vars[(pts+1):(2*pts)]
-    s = sum(w)
+    s = sum(w, na.rm = T) # needed to fix if statement error
     if (s < 0 | s > 1) # constraint implementation
       return(-Inf)
     

@@ -8,7 +8,7 @@ sens = function(z, vars, betas, powers) {
   # distinguish between points and weights
   x = vars[1:pts]
   w = vars[(pts+1):(2*pts)]
-  s = sum(w)
+  s = sum(w, na.rm = T) # need to get rid of NAs here
   if (s < 0 | s > 1) # constraint implementation
     return(-Inf)
   

@@ -16,18 +16,19 @@ ODpolyApp <- function(...) {
       sidebarPanel(
         # inputs
         "Fractional powers:",
-        selectInput("p1", "Power 1", frac.powers, selected = 1),
-        selectInput("p2", "Power 2", frac.powers, selected = 2),
+        selectInput("p1", "Power 1", frac.powers, selected = 2),
+        selectInput("p2", "Power 2", frac.powers, selected = -2),
         "Coefficients:",
-        numericInput("b0", "Beta0", 1, -Inf, Inf, 0.01), # bad idea to use inf? probably
+        numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
         numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
-        numericInput("b2", "Beta2", 1, -Inf, Inf, 0.01),
+        numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
         "Algorithm options:",
         selectInput("alg", "Algorithms", metaheuristics, selected = "DE"),
         numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
         numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
         "Design options:",
-        numericInput("pts", "Design points", 3, 1, 10, 1)
+        numericInput("pts", "Max design points", 4, 1, 10, 1),
+        numericInput("bound", "Upper bound", 10, 1, 10, 1)
       ),
       mainPanel(
         #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -35,8 +36,10 @@ ODpolyApp <- function(...) {
         plotOutput("plot1", click = "plot_click"),
         actionButton("fit", "Fit"),
         actionButton("rem_point", "Remove Last Point"),
-        actionButton("clear", "Clear all")
-        #verbatimTextOutput("model_out")
+        actionButton("clear", "Clear all"),
+        #verbatimTextOutput("model_out"),
+        plotOutput("sens_plot"),
+        actionButton("find", "Find optimal design")
       )
     )
   )
@@ -198,6 +201,52 @@ ODpolyApp <- function(...) {
     # output$model_out <- renderPrint(
     #   mod()
     # )
+    
+    ############################################################################
+    # code for finding optimal design
+    ############################################################################
+    
+    # set up reactive data structure
+    values$OD <- list(
+      design = numeric(),
+      plot = ggplot()
+    )
+    
+    output$sens_plot = renderPlot({
+      
+      # load from reactive data
+      ggp = values$OD$plot
+      
+      # display plot
+      ggp
+    })
+    
+    # action for find button
+    observeEvent(input$find, {
+      
+      # model pararms
+      powers = as.numeric(c(input$p1, input$p2))
+      betas = c(input$b0, input$b1, input$b2)
+      
+      # algorithm options
+      alg = input$alg
+      iter = input$iter
+      swarm = input$swarm
+      
+      # design options
+      pts = input$pts
+      bound = input$bound
+      
+      # find optimal design
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound)
+      
+      # store in reactive data
+      values$OD$design = od$design
+      values$OD$plot = od$plot
+      
+      
+    })
+    
   }
   
   
