@@ -42,13 +42,22 @@ sens = function(z, vars, betas, powers) {
     
   }
   
-  # compute matrix inverse
-  # figure out a way to avoid
-  Minv = solve(M)
+  # compute matrix inverse and then sensitivity function
+  # avoid singular matrices
+  # solution from https://stackoverflow.com/questions/24961983/how-to-check-if-a-matrix-has-an-inverse-in-the-r-language
+  if (class(try(solve(M),silent=T))[1]!="matrix") {
+    # set Minv to something
+    #Minv = matrix(c(1,0,0,0,1,0,0,0,1), nrow=3)
+    y = 1
+  }
+  else {
+    # compute sensitivity function
+    Minv = solve(M)
+    b = c(1, z^powers[1], z^powers[2])
+    y = sigmaz * t(b) %*% Minv %*% b - 3
+  }
   
-  # compute sensitivity function
-  b = c(1, z^powers[1], z^powers[2])
-  y = sigmaz * t(b) %*% Minv %*% b - 3
+  
   
   return(y)
   
