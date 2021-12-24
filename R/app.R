@@ -88,8 +88,11 @@ ODpolyApp <- function(...) {
       # each point represents 100 observations at that x value
       # y is the number of positive responses received
       # this gives a binomial response
+      
+      # make sure y is positive
+      y_coord = max(0, input$plot_click$y)
       add_row <- data.frame(x = input$plot_click$x,
-                            y = input$plot_click$y,
+                            y = y_coord,
                             yhat = NA
                             #color = factor(input$color, levels = c("Pink", "Green", "Blue")),
                             #shape = factor(input$shape, levels = c("Circle", "Triangle"))
