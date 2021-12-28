@@ -1,4 +1,5 @@
 library(shiny)
+library(waiter)
 
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
@@ -40,6 +41,7 @@ ODpolyApp <- function(...) {
         #verbatimTextOutput("model_out"),
         plotOutput("sens_plot"),
         actionButton("find", "Find optimal design"),
+        waiter::use_waiter(),
         verbatimTextOutput("design_out")
       )
     )
@@ -227,6 +229,14 @@ ODpolyApp <- function(...) {
     
     # action for find button
     observeEvent(input$find, {
+      
+      # set up spinny thing
+      waiter <- waiter::Waiter$new(id = "sens_plot",
+                                   html = spin_terminal(),
+                                   color = "grey"
+                                   )$show()
+      waiter$show()
+      on.exit(waiter$hide())
       
       # model pararms
       powers = as.numeric(c(input$p1, input$p2))

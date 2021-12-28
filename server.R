@@ -1,5 +1,5 @@
 library(shiny)
-
+library(waiter)
 
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
 xs = seq(0, 10, 0.01)
@@ -411,6 +411,14 @@ server <- function(input, output, session) {
   
   # action for find button
   observeEvent(input$find, {
+    
+    # set up spinny thing
+    waiter <- waiter::Waiter$new(id = "sens_plot",
+                                 html = spin_terminal(),
+                                 color = "grey"
+    )$show()
+    waiter$show()
+    on.exit(waiter$hide())
     
     # model pararms
     powers = as.numeric(c(input$p1, input$p2))

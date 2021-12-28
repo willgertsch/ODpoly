@@ -35,6 +35,7 @@ ui <- fluidPage(
       #verbatimTextOutput("model_out"),
       plotOutput("sens_plot"),
       actionButton("find", "Find optimal design"),
+      waiter::use_waiter(),
       verbatimTextOutput("design_out")
     )
   )
