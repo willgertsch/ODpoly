@@ -6,6 +6,7 @@
 sens = function(z, vars, betas, powers) {
   
   # distinguish between points and weights
+  pts = length(vars)/2
   x = vars[1:pts]
   w = vars[(pts+1):(2*pts)]
   s = sum(w, na.rm = T) # need to get rid of NAs here

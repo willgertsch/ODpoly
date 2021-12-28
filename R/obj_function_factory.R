@@ -17,6 +17,7 @@ obj_function_factory = function(powers, betas) {
   obj_func = function(vars) {
     
     # distinguish between points and weights
+    pts = length(vars)/2
     x = vars[1:pts]
     w = vars[(pts+1):(2*pts)]
     s = sum(w, na.rm = T) # needed to fix if statement error
