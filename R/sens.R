@@ -13,24 +13,32 @@ sens = function(z, vars, betas, powers) {
   if (s < 0 | s > 1) # constraint implementation
     return(-Inf)
   
+  # define a powers vector that includes 0
+  zpowers = c(0, powers)
+  
   # compute x and z terms using correct functional
-  if (powers[1] == powers[2]) { # apply correct x function if repeated power
-    # not sure I need this
-    if (sum(x<=1)>0) {
-      x[x<=1] = 1 # put back in design interval
-    }
-    
-    x1 = x^powers[1]
-    x2 = log(x) * x^powers[1]
-    z1 = z^powers[1]
-    z2 = log(z) * z^powers[2]
-  }
-  else {
-    x1 = x^powers[1]
-    x2 = x^powers[2]
-    z1 = z^powers[1]
-    z2 = z^powers[2]
-  }
+  # if (powers[1] == powers[2]) { # apply correct x function if repeated power
+  #   # not sure I need this
+  #   if (sum(x<=1)>0) {
+  #     x[x<=1] = 1 # put back in design interval
+  #   }
+  #   
+  #   x1 = x^powers[1]
+  #   x2 = log(x) * x^powers[1]
+  #   z1 = z^powers[1]
+  #   z2 = log(z) * z^powers[2]
+  # }
+  # else {
+  #   x1 = x^powers[1]
+  #   x2 = x^powers[2]
+  #   z1 = z^powers[1]
+  #   z2 = z^powers[2]
+  # }
+  
+  x1 = H(2, x, zpowers)
+  x2 = H(3, x, zpowers)
+  z1 = H(2, z, zpowers)
+  z2 = H(3, z, zpowers)
   
   # compute eta
   # additional log terms not implemented yet

@@ -11,6 +11,9 @@ obj_function_factory = function(powers, betas) {
   
   lbeta = length(betas)
   
+  # define a powers vector that includes 0
+  zpowers = c(0, powers)
+  
   # construct objective function
   # only input should be design on that point
   # vars is a list with the current x values and weights
@@ -26,19 +29,23 @@ obj_function_factory = function(powers, betas) {
     
     
     # compute x terms
-    if (powers[1] == powers[2]) { # apply correct x function if repeated power
-      if (sum(x<=1)>0) {
-        #print("Fractional polynomials are only defined on (0, inf]")
-        x[x<=1] = 1 # put back in design interval
-      }
-      
-      x1 = x^powers[1]
-      x2 = log(x) * x^powers[1]
-    }
-    else {
-      x1 = x^powers[1]
-      x2 = x^powers[2]
-    }
+    # if (powers[1] == powers[2]) { # apply correct x function if repeated power
+    #   if (sum(x<=1)>0) {
+    #     #print("Fractional polynomials are only defined on (0, inf]")
+    #     x[x<=1] = 1 # put back in design interval
+    #   }
+    #   
+    #   x1 = x^powers[1]
+    #   x2 = log(x) * x^powers[1]
+    # }
+    # else {
+    #   x1 = x^powers[1]
+    #   x2 = x^powers[2]
+    # }
+    
+    # x1 is the 2nd term in the polynomial
+    x1 = H(2, x, zpowers)
+    x2 = H(3, x, zpowers)
     
     
     # compute eta
