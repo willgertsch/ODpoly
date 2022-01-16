@@ -135,12 +135,18 @@ ODpolyApp <- function(...) {
       for (p1 in frac.powers) {
         for (p2 in frac.powers) {
           
+          # define powers vector
+          zpowers = c(0, p1, p2)
+          
           # create x variables
-          x1 = model_data$x^p1
-          if (p1 == p2)
-            x2 = log(model_data$x) * model_data$x^p2
-          else
-            x2 = model_data$x^p2
+          # x1 = model_data$x^p1
+          # if (p1 == p2)
+          #   x2 = log(model_data$x) * model_data$x^p2
+          # else
+          #   x2 = model_data$x^p2
+          
+          x1 = H(2, model_data$x, zpowers)
+          x2 = H(3, model_data$x, zpowers)
           
           
           
@@ -163,13 +169,17 @@ ODpolyApp <- function(...) {
       # get every needed to refit model
       p1 = result[min_aic_index, 2]
       p2 = result[min_aic_index, 3]
+      zpowers = c(0, p1, p2)
       
       # create x variables
-      x1 = model_data$x^p1
-      if (p1 == p2)
-        x2 = log(model_data$x) * model_data$x^p2
-      else
-        x2 = model_data$x^p2
+      # x1 = model_data$x^p1
+      # if (p1 == p2)
+      #   x2 = log(model_data$x) * model_data$x^p2
+      # else
+      #   x2 = model_data$x^p2
+      
+      x1 = H(2, model_data$x, zpowers)
+      x2 = H(3, model_data$x, zpowers)
       
       # fit model 
       mod = glm(cbind(successes, 100 - successes) ~ x1 + x2,
