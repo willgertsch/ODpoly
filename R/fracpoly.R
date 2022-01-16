@@ -6,7 +6,7 @@ bt = function(X, p) {
   if (p != 0)
     return(X^p)
   else if (p == 0)
-    return(log(X))
+    return(suppressWarnings(log(X)))
 } 
 
 # H function
@@ -17,7 +17,7 @@ H = function(j, X, powers) {
   if (powers[j] != powers[j-1])
     return(bt(X, powers[j]))
   else if (powers[j] == powers[j-1])
-    return(log(X) * H(j-1, X, powers))
+    return(suppressWarnings(log(X)) * H(j-1, X, powers))
 }
 
 # calculates the fractional polynomial for given X, coefficients, powers
