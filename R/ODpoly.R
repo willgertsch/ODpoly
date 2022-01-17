@@ -32,7 +32,8 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   result = sol$result
   
   # plot sensitivity function
-  xs = seq(1, bound, 0.01)
+  step = bound/1000
+  xs = seq(1, bound, step)
   p = plot_sens(xs, sol$result, betas, powers)
   
   # return
