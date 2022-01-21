@@ -9,15 +9,99 @@ metaheuristics = c("PSO", "ALO", "GWO", "DA", "FFA", "GA", "GOA", "HS", "MFO",
                    "CS", "BA", "GBS", "BHO")
 
 ODpolyApp <- function(...) {
-  ui <- fluidPage(
+  ui <- fixedPage(
     withMathJax(),
+    
     tags$h1(
       "Optimal Designs for Binary Dose-Response Experiments with Fractional Polynomials and Metaheuristics", 
       style="text-align:center;"
       ),
-    tags$p("$$\\log\\left( \\frac{p_i}{1-p_i}\\right) = \\eta_i$$"),
+    
+    tags$h3(
+      "Introduction",
+      style="text-align:center;"
+    ),
+    
+    tags$h3(
+      "Fractional Polynomial Logistic Model",
+      style="text-align:center;"
+    ),
+    tags$p("
+    Royston and Altman (1994) proposed fractional polynomials as a more flexible generalization of the standard polynomial function form. 
+    This is accomplished by allowing the predictor variable to take on variations of the Box-Tidwell transformation.
+    Let \\(X\\) be a positive predictor variable. 
+    A fractional polynomial of degree \\( m \\) is defined as
+    $$
+    \\phi_m (X , \\mathbf{\\beta}, \\mathbf{p}) = \\sum^{m+1}_{j=1} \\beta_j H_j(X)
+    $$
+    where \\(\\mathbf{\\beta}\\) and \\(\\mathbf{p}\\) are vectors of regression coefficients and powers respectively. 
+    The function \\(H_j(X)\\) is defined recursively as
+    $$
+    H_j(X) = \\begin{cases} 
+    X^{(p_j)} & p_j \\neq p_{j-1}\\\\
+    H_{j-1}(X) \\ln X & p_j = p_{j-1}
+    \\end{cases}
+    $$
+    where \\(H_1(X)=1\\) and \\(p_1 = 0\\).
+    The power of \\(X\\) in parentheses is shorthand for the Box-Tidwell transformation, which is defined as
+    $$
+    X^{(p_j)} = \\begin{cases} 
+    X^{p_j} & p_j \\neq 0\\\\
+    \\ln X & p_j = 0
+    \\end{cases}
+    $$
+    Royston and Altman argue that \\(m=2\\) with the set of powers \\(\\mathcal{P} = \\{ -2, -1, -0.5, 0, 0.5, 1, 2, 3\\}\\) is sufficient for most applications. 
+           "),
+    
+    tags$p("
+    Suppose we have a binary outcome modeled as \\(y_i \\sim \\text{Bernoulli}(p_i)\\) for observations \\(i = 1, \\dots, n\\) and \\(0 \\leq p_i < 1\\). 
+    We can add a predictor \\(x_i\\) into the model using the logit link function
+    $$\\log\\left( \\frac{p_i}{1-p_i}\\right) = \\eta_i$$
+    where \\(\\eta_i\\) is a fractional polynomial in \\(x_i\\). 
+    Rearranging, we obtain an expression for the mean of \\(y_i\\) given \\(\\eta_i\\)
+    $$
+    p_i = \\frac{e^{\\eta_i}}{1+e^{\\eta_i}}= \\frac{1}{1+e^{-\\eta_i}} 
+    $$
+    The information matrix for this model may be expressed as
+    $$
+    M(\\beta, \\mathbf{p}) = \\sum_{i=1}^k p_i (1-p_i) f(x_i) f(x_i)' = X'WX
+    $$
+    where \\(W\\) is a diagonal weight matrix with entries \\(p_i (1-p_i)\\). 
+    For a 2nd degree fractional polynomial, the design matrix \\(X\\) has rows \\(f(x_i)' = (1,H_2(x_i),H_3(x_i))\\)."
+           ),
+    
+    tags$h3(
+      "Optimal Design",
+      style="text-align:center;"
+    ),
+    tags$p("
+           An experimental design \\(\\xi\\) may be expressed as a collection of design points \\(x_1, \\dots, x_k\\) and weights \\(w_1, \\dots, w_k\\)  for a fixed sample size \\(N\\).
+           Multiplying \\(w_i\\) by \\(N\\) gives the approximate number of samples at predictor value \\(x_i\\).
+           The design \\(\\xi\\) is optimal if it maximizes or minimizes some function of the model information matrix \\(M(\\beta, \\mathbf{p})\\).
+           For example, D-optimality minimizes
+           $$
+           \\Psi(M(\\beta, \\mathbf{p})) = -\\log (|M(\\beta, \\mathbf{p})|)
+           $$
+           The D-optimal design is the design that minimizes the volume of confidence ellipsoid for the regression parameters.
+           Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
+           Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
+           "),
+    tags$p("
+           To check if a design is locally D-optimal, we can check to see if for all available values of \\( x\\) that
+           $$
+           ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
+           $$
+           where \\(p\\) is the number of regression coefficients. Equality is achieved at the optimal design points.
+           Therefore, plotting \\(ch(x)\\) provides a graphical check of optimality.
+           "),
+    
+    tags$h3(
+      "Metaheurstics",
+      style="text-align:center;"
+    ),
+    
     titlePanel(
-      "Optimal Designs for Fractional Polynomials"
+      "Find the optimal design"
     ),
     sidebarLayout(
       sidebarPanel(
