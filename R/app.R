@@ -10,6 +10,12 @@ metaheuristics = c("PSO", "ALO", "GWO", "DA", "FFA", "GA", "GOA", "HS", "MFO",
 
 ODpolyApp <- function(...) {
   ui <- fluidPage(
+    withMathJax(),
+    tags$h1(
+      "Optimal Designs for Binary Dose-Response Experiments with Fractional Polynomials and Metaheuristics", 
+      style="text-align:center;"
+      ),
+    tags$p("$$\\log\\left( \\frac{p_i}{1-p_i}\\right) = \\eta_i$$"),
     titlePanel(
       "Optimal Designs for Fractional Polynomials"
     ),
