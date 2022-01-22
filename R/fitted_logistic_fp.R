@@ -47,13 +47,6 @@ fitted_logistic_fp = function(successes, x, powers) {
   p2 = result[min_aic_index, 3]
   zpowers = c(0, p1, p2)
   
-  # create x variables
-  # x1 = model_data$x^p1
-  # if (p1 == p2)
-  #   x2 = log(model_data$x) * model_data$x^p2
-  # else
-  #   x2 = model_data$x^p2
-  
   x1 = H(2, x, zpowers)
   x2 = H(3, x, zpowers)
   

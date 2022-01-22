@@ -233,66 +233,7 @@ ODpolyApp <- function(...) {
       # calculate number of successes
       successes = round(model_data$y * 100)
       
-      # # loop over all values of fractional powers
-      # # find lowest AIC
-      # num_models = length(frac.powers)^2
-      # result = c(1,1,1)
-      # for (p1 in frac.powers) {
-      #   for (p2 in frac.powers) {
-      #     
-      #     # define powers vector
-      #     zpowers = c(0, p1, p2)
-      #     
-      #     # create x variables
-      #     # x1 = model_data$x^p1
-      #     # if (p1 == p2)
-      #     #   x2 = log(model_data$x) * model_data$x^p2
-      #     # else
-      #     #   x2 = model_data$x^p2
-      #     
-      #     x1 = H(2, model_data$x, zpowers)
-      #     x2 = H(3, model_data$x, zpowers)
-      #     
-      #     
-      #     
-      #     # fit model 
-      #     mod.p1.p2 = glm(cbind(successes, 100 - successes) ~ x1 + x2,
-      #                     family = binomial)
-      #     
-      #     # record AIC
-      #     result = rbind(result, c(AIC(mod.p1.p2), p1, p2))
-      #     
-      #   }
-      # }
-      # 
-      # # remove first row
-      # result = result[-1, ]
-      # 
-      # # find min aic
-      # min_aic_index = which.min(result[, 1])
-      # 
-      # # get every needed to refit model
-      # p1 = result[min_aic_index, 2]
-      # p2 = result[min_aic_index, 3]
-      # zpowers = c(0, p1, p2)
-      # 
-      # # create x variables
-      # # x1 = model_data$x^p1
-      # # if (p1 == p2)
-      # #   x2 = log(model_data$x) * model_data$x^p2
-      # # else
-      # #   x2 = model_data$x^p2
-      # 
-      # x1 = H(2, model_data$x, zpowers)
-      # x2 = H(3, model_data$x, zpowers)
-      # 
-      # # fit model 
-      # mod = glm(cbind(successes, 100 - successes) ~ x1 + x2,
-      #           family = binomial)
-      # 
-      # # add predicted values to plot
-      # # these are the predicted probabilities
-      # yhat = predict(mod, type = "response")
+      
       
       out = fitted_logistic_fp(successes, model_data$x, frac.powers)
       
@@ -301,19 +242,9 @@ ODpolyApp <- function(...) {
       
       
       # return
-      # give powers labels
-      # out = c(coef(mod), p1, p2)
-      # names(out) = c(names(out)[1:length(coef(mod))], 'p1', 'p2')
-      # out
       
       # change values in inputs
       # have to get rid of names
-      # p1 = unname(p1)
-      # p2 = unname(p2)
-      # beta = coef(mod)
-      # beta0 = unname(beta[1])
-      # beta1 = unname(beta[2])
-      # beta2 = unname(beta[3])
       p1 = out$p1
       p2 = out$p2
       beta0 = out$beta0
@@ -326,9 +257,6 @@ ODpolyApp <- function(...) {
       updateNumericInput(session, "b2", value = beta2)
     })
     
-    # output$model_out <- renderPrint(
-    #   mod()
-    # )
     
     ############################################################################
     # code for finding optimal design
