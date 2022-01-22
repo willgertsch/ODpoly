@@ -4,9 +4,11 @@ library(waiter)
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
 xs = seq(0, 10, 0.01)
-metaheuristics = c("PSO", "ALO", "GWO", "DA", "FFA", "GA", "GOA", "HS", "MFO",
-                   "SCA", "WOA", "CLONALG", "DE", "SFL", "CSO", "ABC", "KH", 
-                   "CS", "BA", "GBS", "BHO")
+metaheuristics = c("Particle Swarm Optimization", 
+                   "Grey Wolf Optimizer", 
+                   "Harmony Search Algorithm", 
+                   "Moth Flame Optimizer",
+                   "Differential Evolution")
 
 ODpolyApp <- function(...) {
   ui <- fixedPage(
@@ -114,7 +116,7 @@ ODpolyApp <- function(...) {
         numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
         numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
         "Algorithm options:",
-        selectInput("alg", "Algorithms", metaheuristics, selected = "DE"),
+        selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
         numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
         numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
         "Design options:",
