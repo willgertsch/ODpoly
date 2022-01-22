@@ -334,6 +334,7 @@ ODpolyApp <- function(...) {
         
 
         # combine weights of identical points
+        # sort as well
         xs = raw[1:(l/2)]
         ws = raw[(l/2+1):l]
         if (length(unique(xs)) != length(xs)) {
@@ -365,9 +366,16 @@ ODpolyApp <- function(...) {
         
         # magic
         raw = c(raw)
+        
+        # sort by x's
+        raw_x = raw[1:(l/2)]
+        raw_w = raw[(l/2 + 1):l]
+        r = rank(raw_x)
+        raw_x = raw_x[r]
+        raw_w = raw_w[r]
+        raw = c(raw_x, raw_w)
 
         names(raw) = labs
-        
         
         out = raw
       }
