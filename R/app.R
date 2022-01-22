@@ -307,6 +307,7 @@ ODpolyApp <- function(...) {
       # store in reactive data
       values$OD$design = od$design
       values$OD$plot = od$plot
+      values$OD$val = od$value
       
       
     })
@@ -314,12 +315,19 @@ ODpolyApp <- function(...) {
     # update design output
     output$design_out = renderPrint({
       
+      
+      
+      obj_val = values$OD$val
       raw = values$OD$design
       
       # case if algorithm hasn't run
       if (length(raw) == 0)
         out = "No design"
       else { # all other cases
+        
+        # display objective value
+        print("-log(Det(M)) = ")
+        print(obj_val)
         
         l = length(raw)
 

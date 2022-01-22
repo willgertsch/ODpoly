@@ -31,11 +31,12 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   # save output
   result = sol$result
   
+  
   # plot sensitivity function
   step = bound/1000
   xs = seq(1, bound, step)
   p = plot_sens(xs, sol$result, betas, powers)
   
   # return
-  out = list(design = result, plot = p)
+  out = list(design = result, plot = p, value = c(sol$optimumValue))
 }
