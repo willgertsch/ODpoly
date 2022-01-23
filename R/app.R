@@ -3,7 +3,6 @@ library(waiter)
 
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
-xs = seq(0, 10, 0.01)
 metaheuristics = c("Particle Swarm Optimization", 
                    "Grey Wolf Optimizer", 
                    "Harmony Search Algorithm", 
@@ -181,7 +180,7 @@ ODpolyApp <- function(...) {
                              numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                              "Design options:",
                              numericInput("pts", "Max design points", 4, 1, 10, 1),
-                             numericInput("bound", "Upper bound", 10, 1, 10, 1)
+                             numericInput("bound", "Upper bound", 10, 1, NA, 1)
                            ),
                            mainPanel(
                              #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -223,7 +222,7 @@ ODpolyApp <- function(...) {
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
         geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-        lims(x = c(1, 10), y = c(0, 1)) +
+        lims(x = c(1, input$bound), y = c(0, 1)) +
         theme_bw() + 
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +
