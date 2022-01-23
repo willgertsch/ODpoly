@@ -19,7 +19,7 @@ plot_sens = function(xvals, vars, betas, powers) {
     geom_hline(yintercept = 0) +
     theme_bw() +
     labs(title = "Equivalence Theorem Check") +
-    xlab("x") + ylab("Standardized variance")
+    xlab("x") + ylab("ch(x)")
   
   return(p)
 }

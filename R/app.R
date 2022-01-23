@@ -42,8 +42,7 @@ ODpolyApp <- function(...) {
       style="text-align:center;"
     ),
     tags$p("
-    Royston and Altman (1994) proposed fractional polynomials as a more flexible generalization of the standard polynomial function form. 
-    This is accomplished by allowing the predictor variable to take on variations of the Box-Tidwell transformation.
+    Royston and Altman (1994) proposed fractional polynomials as a more flexible generalization of standard polynomials.
     Let \\(X\\) be a positive predictor variable. 
     A fractional polynomial of degree \\( m \\) is defined as
     $$
@@ -102,12 +101,12 @@ ODpolyApp <- function(...) {
            Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
            "),
     tags$p("
-           To check if a design is locally D-optimal, we can check to see if for all available values of \\( x\\) that
+           To check if a design is locally D-optimal, we can use the equivalence theorem[CITE]. The theorem says that the design is optimal if
            $$
            ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
            $$
-           where \\(p\\) is the number of regression coefficients. Equality is achieved at the optimal design points.
-           Therefore, plotting \\(ch(x)\\) provides a graphical check of optimality.
+           for all values of \\( x\\) in the design space with equality at the optimal design points and where \\(p\\) is the number of regression coefficients.
+           Plotting \\(ch(x)\\) provides a graphical check of optimality.
            "),
     
     tags$h3(
