@@ -37,6 +37,33 @@ ODpolyApp <- function(...) {
       style="text-align:center;"
     ),
     
+    tags$p("
+           Binary dose-reponse experiments are common across many different fields such as toxicology, epidemiology, drug development, and enviromental science.
+           The goal of these studies is to identify how the dosage relates to the probability of toxicity, efficacy, or some other event.
+           For example, Price et. al. (1985) studied the effect of ethylene glycol on birth defects in mice. 
+           "),
+    
+    tags$p("
+           Because the shape of the dose-response curve is usually non-linear, polynomial models are often used to model the probability of the event.
+           However, standard polynomials may not be flexible enough to model the true shape of the curve.
+           Fractional polynomials are an extension of the standard polynomial that permits more flexibility by allowing the powers to vary.
+           Therefore a logistic regression with a fractional polynomial predictor is a sensible choice for modeling the dose-response curve
+           "),
+    
+    tags$p("
+           Before running an experiment, it is important to think carefully about the design.
+           A good design can avoid waste, high costs, and improve statistical efficiency.
+           Given that we plan to analyze the data using a fractional polynomial logistic model, we can optimize the dose levels and the number of subjects at each dose level to plan the best experiment for that model.
+           "),
+    
+    
+    
+    tags$p("
+           This web app allows the user to find locally D-optimal designs for a degree 2 fractional polynomial logistic model using different metaheuristic optimization algorithms.
+           The designs are locally optimal, so the user must suppply regression coefficients and powers based on prior knowledge of the true dose-response curve.
+           These values may be obtained from literature or by inputing a curve shape in the app itself.
+           "),
+    
     tags$h3(
       "Fractional Polynomial Logistic Model",
       style="text-align:center;"
@@ -101,7 +128,7 @@ ODpolyApp <- function(...) {
            Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
            "),
     tags$p("
-           To check if a design is locally D-optimal, we can use the equivalence theorem[CITE]. The theorem says that the design is optimal if
+           To check if a design is locally D-optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
            $$
            ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
            $$
@@ -110,8 +137,22 @@ ODpolyApp <- function(...) {
            "),
     
     tags$h3(
-      "Metaheurstics",
-      style="text-align:center;"
+      "Metaheurstic Optimization",
+      style="text-align:center;"[]
+    ),
+    
+    tags$p(
+      "Recall that finding the optimal design requires maximizing or minimizing \\(\\Psi(M(\\beta, \\mathbf{p}))\\).
+      Because the objective function for this model is complex, we use metaheuristic optimization algorithms.
+      These algorithms are general purpose and are able to handle constraints, non-convexity, and a large number of variables.
+      One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem provides an easy way to check if the optimum has been reached.
+      "
+    ),
+    
+    tags$p(
+      "We have included several different metaheuristic algorithms for finding optimal designs.
+      These include Particle Swarm Optimization, the Grey Wolf Optimizer, the Harmony Search Algorithm, the Moth Flame Optimizer, and Differential Evolution.
+      The algorithms selected generally have good performance for this problem, but based on testing we recommend Differential Evolution"
     ),
     
     titlePanel(
