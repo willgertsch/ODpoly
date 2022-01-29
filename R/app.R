@@ -26,7 +26,7 @@ ODpolyApp <- function(...) {
   ui <- fixedPage(
     withMathJax(),
     
-    tabsetPanel(type = "pills",
+    tabsetPanel(type = "pills", id = "tabpanel",
                 
                 tabPanel("Background", 
                          
@@ -45,33 +45,33 @@ ODpolyApp <- function(...) {
            The goal of these studies is to identify how the dosage relates to the probability of toxicity, efficacy, or some other event.
            For example, Price et. al. (1985) studied the effect of ethylene glycol on birth defects in mice. 
            "),
-                         
-                         tags$p("
+           
+           tags$p("
            Because the shape of the dose-response curve is usually non-linear, polynomial models are often used to model the probability of the event.
            However, standard polynomials may not be flexible enough to model the true shape of the curve.
            Fractional polynomials are an extension of the standard polynomial that permits more flexibility by allowing the powers to vary.
            Therefore a logistic regression with a fractional polynomial predictor is a sensible choice for modeling the dose-response curve
            "),
-                         
-                         tags$p("
+           
+           tags$p("
            Before running an experiment, it is important to think carefully about the design.
            A good design can avoid waste, high costs, and improve statistical efficiency.
            Given that we plan to analyze the data using a fractional polynomial logistic model, we can optimize the dose levels and the number of subjects at each dose level to plan the best experiment for that model.
            "),
-                         
-                         
-                         
-                         tags$p("
+           
+           
+           
+           tags$p("
            This web app allows the user to find locally D-optimal designs for a degree 2 fractional polynomial logistic model using different metaheuristic optimization algorithms.
            The designs are locally optimal, so the user must suppply regression coefficients and powers based on prior knowledge of the true dose-response curve.
            These values may be obtained from literature or by inputing a curve shape in the app itself.
            "),
-                         
-                         tags$h3(
-                           "Fractional Polynomial Logistic Model",
-                           style="text-align:center;"
-                         ),
-                         tags$p("
+           
+           tags$h3(
+             "Fractional Polynomial Logistic Model",
+             style="text-align:center;"
+           ),
+           tags$p("
     Royston and Altman (1994) proposed fractional polynomials as a more flexible generalization of standard polynomials.
     Let \\(X\\) be a positive predictor variable. 
     A fractional polynomial of degree \\( m \\) is defined as
@@ -96,8 +96,8 @@ ODpolyApp <- function(...) {
     $$
     Royston and Altman argue that \\(m=2\\) with the set of powers \\(\\mathcal{P} = \\{ -2, -1, -0.5, 0, 0.5, 1, 2, 3\\}\\) is sufficient for most applications. 
            "),
-                         
-                         tags$p("
+    
+    tags$p("
     Suppose we have a binary outcome modeled as \\(y_i \\sim \\text{Bernoulli}(p_i)\\) for observations \\(i = 1, \\dots, n\\) and \\(0 \\leq p_i < 1\\). 
     We can add a predictor \\(x_i\\) into the model using the logit link function
     $$\\log\\left( \\frac{p_i}{1-p_i}\\right) = \\eta_i$$
@@ -112,13 +112,13 @@ ODpolyApp <- function(...) {
     $$
     where \\(W\\) is a diagonal weight matrix with entries \\(p_i (1-p_i)\\). 
     For a 2nd degree fractional polynomial, the design matrix \\(X\\) has rows \\(f(x_i)' = (1,H_2(x_i),H_3(x_i))\\)."
-                         ),
-                         
-                         tags$h3(
-                           "Optimal Design",
-                           style="text-align:center;"
-                         ),
-                         tags$p("
+    ),
+    
+    tags$h3(
+      "Optimal Design",
+      style="text-align:center;"
+    ),
+    tags$p("
            An experimental design \\(\\xi\\) may be expressed as a collection of design points \\(x_1, \\dots, x_k\\) and weights \\(w_1, \\dots, w_k\\)  for a fixed sample size \\(N\\).
            Multiplying \\(w_i\\) by \\(N\\) gives the approximate number of samples at predictor value \\(x_i\\).
            The design \\(\\xi\\) is optimal if it maximizes or minimizes some function of the model information matrix \\(M(\\beta, \\mathbf{p})\\).
@@ -130,7 +130,7 @@ ODpolyApp <- function(...) {
            Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
            Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
            "),
-                         tags$p("
+    tags$p("
            To check if a design is locally D-optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
            $$
            ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
@@ -138,68 +138,84 @@ ODpolyApp <- function(...) {
            for all values of \\( x\\) in the design space with equality at the optimal design points and where \\(p\\) is the number of regression coefficients.
            Plotting \\(ch(x)\\) provides a graphical check of optimality.
            "),
-                         
-                         tags$h3(
-                           "Metaheurstic Optimization",
-                           style="text-align:center;"[]
-                         ),
-                         
-                         tags$p(
-                           "Recall that finding the optimal design requires maximizing or minimizing \\(\\Psi(M(\\beta, \\mathbf{p}))\\).
+    
+    tags$h3(
+      "Metaheurstic Optimization",
+      style="text-align:center;"[]
+    ),
+    
+    tags$p(
+      "Recall that finding the optimal design requires maximizing or minimizing \\(\\Psi(M(\\beta, \\mathbf{p}))\\).
       Because the objective function for this model is complex, we use metaheuristic optimization algorithms.
       These algorithms are general purpose and are able to handle constraints, non-convexity, and a large number of variables.
       One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem provides an easy way to check if the optimum has been reached.
       "
-                         ),
-                         
-                         tags$p(
-                           "We have included several different metaheuristic algorithms for finding optimal designs.
+    ),
+    
+    tags$p(
+      "We have included several different metaheuristic algorithms for finding optimal designs.
       These include Particle Swarm Optimization, the Grey Wolf Optimizer, the Harmony Search Algorithm, the Moth Flame Optimizer, and Differential Evolution.
       The algorithms selected generally have good performance for this problem, but based on testing we recommend Differential Evolution"
-                         )
-                         
-                         ),
-                tabPanel("App",
-                         
-                         titlePanel(
-                           "Find the optimal design"
-                         ),
-                         sidebarLayout(
-                           sidebarPanel(
-                             # inputs
-                             "Fractional powers:",
-                             selectInput("p1", "Power 1", frac.powers, selected = 2),
-                             selectInput("p2", "Power 2", frac.powers, selected = -2),
-                             "Coefficients:",
-                             numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
-                             numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
-                             numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
-                             "Algorithm options:",
-                             selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
-                             numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
-                             numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
-                             "Design options:",
-                             numericInput("pts", "Max design points", 4, 1, 10, 1),
-                             numericInput("bound", "Upper bound", 10, 1, NA, 1)
-                           ),
-                           mainPanel(
-                             #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
-                             #selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
-                             plotOutput("plot1", click = "plot_click"),
-                             actionButton("fit", "Fit"),
-                             actionButton("rem_point", "Remove Last Point"),
-                             actionButton("clear", "Clear all"),
-                             #verbatimTextOutput("model_out"),
-                             plotOutput("sens_plot"),
-                             actionButton("find", "Find optimal design"),
-                             waiter::use_waiter(),
-                             verbatimTextOutput("design_out")
-                           )
-                         )
-                
-                )
+    )
     
-    
+                ),
+    tabPanel("Fractional Polynomials",
+             
+             titlePanel(
+               "Fractional Polynomials on Probability Scale"
+             ),
+             
+             sidebarLayout(
+               sidebarPanel(
+                 "Options",
+                 numericInput("fp_bound", "Upper bound", 10, 1, NA, 1)
+                 
+               ),
+               mainPanel(
+                 plotOutput("plot1", click = "plot_click"),
+                 actionButton("fit", "Fit"),
+                 actionButton("rem_point", "Remove Last Point"),
+                 actionButton("clear", "Clear all"),
+                 verbatimTextOutput("model_out"),
+                 actionButton("copymodel", "Copy model to design input")
+               )
+             )
+             
+             ),
+    tabPanel("Design", id = "design",
+             
+             titlePanel(
+               "Find the optimal design"
+             ),
+             sidebarLayout(
+               sidebarPanel(
+                 # inputs
+                 selectInput("p1", "Power 1", frac.powers, selected = 2),
+                 selectInput("p2", "Power 2", frac.powers, selected = -2),
+                 numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
+                 numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
+                 numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
+                 selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
+                 numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
+                 numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
+                 numericInput("pts", "Max design points", 4, 1, 10, 1),
+                 numericInput("bound", "Upper bound", 10, 1, NA, 1)
+               ),
+               mainPanel(
+                 #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
+                 #selectInput("shape", "Select Shape:", c("Circle", "Triangle")),
+                 #plotOutput("plot1", click = "plot_click"),
+                 #actionButton("fit", "Fit"),
+                 #actionButton("rem_point", "Remove Last Point"),
+                 #actionButton("clear", "Clear all"),
+                 #verbatimTextOutput("model_out"),
+                 plotOutput("sens_plot"),
+                 actionButton("find", "Find optimal design"),
+                 waiter::use_waiter(),
+                 verbatimTextOutput("design_out")
+               )
+             )
+             )
     )
   )
   
@@ -222,7 +238,7 @@ ODpolyApp <- function(...) {
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
         geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-        lims(x = c(1, input$bound), y = c(0, 1)) +
+        lims(x = c(1, input$fp_bound), y = c(0, 1)) +
         theme_bw() + 
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +
@@ -283,29 +299,52 @@ ODpolyApp <- function(...) {
       
       # calculate number of successes
       successes = round(model_data$y * 100)
-      
-      
-      
+  
       out = fitted_logistic_fp(successes, model_data$x, frac.powers)
       
       # save to reactive object
       values$DT$yhat = out$yhat
       
+      # save data
+      values$p1 = out$p1
+      values$p2 = out$p2
+      values$beta0 = out$beta0
+      values$beta1 = out$beta1
+      values$beta2 = out$beta2
+      values$bound = input$fp_bound
       
-      # return
+    })
+    
+    # copy fitted model info to design inputs
+    # needs something to show success
+    observeEvent(input$copymodel, {
+      updateNumericInput(session, "p1", value = values$p1)
+      updateNumericInput(session, "p2", value = values$p2)
+      updateNumericInput(session, "b0", value = values$beta0)
+      updateNumericInput(session, "b1", value = values$beta1)
+      updateNumericInput(session, "b2", value = values$beta2)
+      updateNumericInput(session, "bound", value = values$bound)
       
-      # change values in inputs
-      # have to get rid of names
-      p1 = out$p1
-      p2 = out$p2
-      beta0 = out$beta0
-      beta1 = out$beta1
-      beta2 = out$beta2
-      updateNumericInput(session, "p1", value = p1)
-      updateNumericInput(session, "p2", value = p2)
-      updateNumericInput(session, "b0", value = beta0)
-      updateNumericInput(session, "b1", value = beta1)
-      updateNumericInput(session, "b2", value = beta2)
+    })
+    
+    output$model_out = renderPrint({
+      
+      # check for no model run
+      if (length(values$beta0)==0) {
+        print("No model")
+      }
+      else {
+        print("p1:")
+        print(values$p1)
+        print("p2:")
+        print(values$p2)
+        print("beta0:")
+        print(values$beta0)
+        print("beta1:")
+        print(values$beta1)
+        print("beta2:")
+        print(values$beta2)
+      }
     })
     
     
