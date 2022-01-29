@@ -4,10 +4,10 @@
 # betas: vector of coefficients
 # powers: vector of powers
 library(ggplot2)
-plot_sens = function(xvals, vars, betas, powers) {
+plot_sens = function(xvals, vars, betas, powers, degree = 2) {
   
   # compute sens function
-  yvals = sapply(xvals, sens, vars, betas, powers)
+  yvals = sapply(xvals, sens, vars, betas, powers, degree)
   
   # old base R plots
   # plot(yvals ~ xvals, type ="l")

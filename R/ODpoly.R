@@ -11,10 +11,10 @@
 # pts: number of design points
 # bound: upper bound for design interval
 library(metaheuristicOpt)
-ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
+ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2) {
   
   # define objective function
-  obj_func = obj_function_factory(powers, betas)
+  obj_func = obj_function_factory(powers, betas, degree)
   
   # set up for metaheuristics
   numVar = 2*pts # each point has one weight and last weight is sum of the others
@@ -35,7 +35,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
   # plot sensitivity function
   step = bound/1000
   xs = seq(1, bound, step)
-  p = plot_sens(xs, sol$result, betas, powers)
+  p = plot_sens(xs, sol$result, betas, powers, degree)
   
   # return
   out = list(design = result, plot = p, value = c(sol$optimumValue))
