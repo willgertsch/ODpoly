@@ -192,9 +192,11 @@ ODpolyApp <- function(...) {
                  # inputs
                  selectInput("p1", "Power 1", frac.powers, selected = 2),
                  selectInput("p2", "Power 2", frac.powers, selected = -2),
+                 selectInput("p3", "Power 3", c(frac.powers, NA), selected = NA),
                  numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
                  numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
                  numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
+                 numericInput("b3", "Beta3", NA, -Inf, Inf, 0.01),
                  selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
                  numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
@@ -379,8 +381,18 @@ ODpolyApp <- function(...) {
       on.exit(waiter$hide())
       
       # model pararms
-      powers = as.numeric(c(input$p1, input$p2))
-      betas = c(input$b0, input$b1, input$b2)
+      # switch depending on if p3 or beta3 are missing
+      if (is.na(input$p3) | is.na(input$b3)) {
+        powers = as.numeric(c(input$p1, input$p2))
+        betas = c(input$b0, input$b1, input$b2)
+        degree = 2
+      }
+      else {
+        powers = as.numeric(c(input$p1, input$p2, input$p3))
+        betas = c(input$b0, input$b1, input$b2, input$b3)
+        degree = 3
+      }
+      
       
       # algorithm options
       alg = metaheur_dict(input$alg)
@@ -392,7 +404,7 @@ ODpolyApp <- function(...) {
       bound = input$bound
       
       # find optimal design
-      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound)
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree)
       
       # store in reactive data
       values$OD$design = od$design
