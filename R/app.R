@@ -302,7 +302,7 @@ ODpolyApp <- function(...) {
       # calculate number of successes
       successes = round(model_data$y * 100)
   
-      out = fitted_logistic_fp(successes, model_data$x, frac.powers)
+      out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
       
       # save to reactive object
       values$DT$yhat = out$yhat

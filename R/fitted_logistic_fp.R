@@ -1,10 +1,11 @@
 # fitted_logistic_fp.R
 # fits a logistic model with fractional polynomial link
+# degree 2
 # returns fitted values, coefs, and powers
 # successes: number of successes out of 100
 # x: predictor pattern corresponding to number of successes
 # powers: set of powers to select model forms from
-fitted_logistic_fp = function(successes, x, powers) {
+fitted_logistic_fp2 = function(successes, x, powers) {
   
   # loop over all values of fractional powers
   # find lowest AIC
@@ -15,13 +16,6 @@ fitted_logistic_fp = function(successes, x, powers) {
       
       # define powers vector
       zpowers = c(0, p1, p2)
-      
-      # create x variables
-      # x1 = model_data$x^p1
-      # if (p1 == p2)
-      #   x2 = log(model_data$x) * model_data$x^p2
-      # else
-      #   x2 = model_data$x^p2
       
       x1 = H(2, x, zpowers)
       x2 = H(3, x, zpowers)
