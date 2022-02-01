@@ -315,6 +315,10 @@ ODpolyApp <- function(...) {
       updateNumericInput(session, "b2", value = values$beta2)
       updateNumericInput(session, "bound", value = values$bound)
       
+      # set cubic options to NA
+      updateNumericInput(session, "p3", value = NA)
+      updateNumericInput(session, "b3", value = NA)
+      
     })
     
     output$model_out = renderPrint({
