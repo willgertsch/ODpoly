@@ -223,12 +223,13 @@ ODpolyApp <- function(...) {
                             )
     
     ## 2. Create a plot
+    # x lower bound tries to be reasonably close to 0
     output$plot1 = renderPlot({
       ggp = ggplot(values$DT, aes(x = x, y = y)) +
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
         geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-        lims(x = c(1, input$fp_bound), y = c(0, 1)) +
+        lims(x = c(0.1, input$fp_bound), y = c(0, 1)) +
         theme_bw() + 
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +
@@ -253,9 +254,11 @@ ODpolyApp <- function(...) {
       # y is the number of positive responses received
       # this gives a binomial response
       
-      # make sure y is positive
+      # make sure x and y are positive
+      # this fixes missing values and is required for FP anyways
+      x_coord = max(0.1, input$plot_click$x)
       y_coord = max(0, input$plot_click$y)
-      add_row <- data.frame(x = input$plot_click$x,
+      add_row <- data.frame(x = x_coord,
                             y = y_coord,
                             yhat = NA
                             #color = factor(input$color, levels = c("Pink", "Green", "Blue")),
