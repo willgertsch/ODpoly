@@ -2,232 +2,27 @@ library(shiny)
 library(waiter)
 
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
-xs = seq(0, 10, 0.01)
+metaheur_dict = function(fullname){
+  if (fullname == "Particle Swarm Optimization")
+    return("PSO")
+  else if (fullname == "Grey Wolf Optimizer")
+    return("GWO")
+  else if (fullname == "Harmony Search Algorithm")
+    return("HS")
+  else if (fullname == "Moth Flame Optimizer")
+    return("MFO")
+  else if (fullname == "Differential Evolution")
+    return("DE")
+}
 
-
+# load other source files
+# and libraries
 library(metaheuristicOpt)
-ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound) {
-  
-  # define objective function
-  obj_func = obj_function_factory(powers, betas)
-  
-  # set up for metaheuristics
-  numVar = 2*pts # each point has one weight and last weight is sum of the others
-  d = c(rep(c(1, bound), pts), rep(c(0,1), pts))
-  rangeVar = matrix(d, nrow = 2)
-  
-  # algorithm params
-  control = list(numPopulation = swarm, maxIter = iter)
-  
-  # find optimal design
-  sol = metaOpt(obj_func, optimType = "MAX", algorithm = alg, 
-                numVar, rangeVar, control)
-  
-  # save output
-  result = sol$result
-  
-  # plot sensitivity function
-  xs = seq(1, bound, 0.01)
-  p = plot_sens(xs, sol$result, betas, powers)
-  
-  # return
-  out = list(design = result, plot = p)
-}
-
-obj_function_factory = function(powers, betas) {
-  
-  # check input
-  if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
-    return(0)
-  
-  force(powers)
-  force(betas)
-  
-  lbeta = length(betas)
-  
-  # construct objective function
-  # only input should be design on that point
-  # vars is a list with the current x values and weights
-  obj_func = function(vars) {
-    
-    # distinguish between points and weights
-    pts = length(vars)/2
-    x = vars[1:pts]
-    w = vars[(pts+1):(2*pts)]
-    s = sum(w, na.rm = T) # needed to fix if statement error
-    if (s < 0 | s > 1) # constraint implementation
-      return(-Inf)
-    
-    
-    # compute x terms
-    if (powers[1] == powers[2]) { # apply correct x function if repeated power
-      if (sum(x<=1)>0) {
-        #print("Fractional polynomials are only defined on (0, inf]")
-        x[x<=1] = 1 # put back in design interval
-      }
-      
-      x1 = x^powers[1]
-      x2 = log(x) * x^powers[1]
-    }
-    else {
-      x1 = x^powers[1]
-      x2 = x^powers[2]
-    }
-    
-    
-    # compute eta
-    eta = betas[1] + betas[2] * x1 + betas[3] * x2
-    
-    
-    # weight function
-    sigma = exp(eta)/(1+exp(eta))^2
-    
-    # information matrix
-    # currently quadratic
-    M = 0
-    for (i in 1:pts) {
-      
-      # will need to update to use correct x functions
-      m12 = x1[i]
-      m13 = x2[i]
-      m23 = x1[i]*x2[i]
-      
-      M_i = w[i] * sigma[i] * matrix(c(
-        1, m12, m13,
-        m12, x1[i]^2, m23,
-        m13, m23, x2[i]^2
-      ), ncol=3)
-      
-      M = M + M_i
-      
-    }
-    
-    
-    # use information matrix to compute objective
-    # using D for now
-    # silence warnings
-    
-    obj_value = suppressWarnings(log(det(M)))
-    
-    
-    
-    # deal with NAs
-    if (is.na(obj_value)) {
-      return(-Inf)
-    }
-    else
-      return(obj_value)
-  }
-  
-  return(obj_func)
-}
-
-sens = function(z, vars, betas, powers) {
-  
-  # distinguish between points and weights
-  pts = length(vars)/2
-  x = vars[1:pts]
-  w = vars[(pts+1):(2*pts)]
-  s = sum(w, na.rm = T) # need to get rid of NAs here
-  if (s < 0 | s > 1) # constraint implementation
-    return(-Inf)
-  
-  # compute x and z terms using correct functional
-  if (powers[1] == powers[2]) { # apply correct x function if repeated power
-    # not sure I need this
-    if (sum(x<=1)>0) {
-      x[x<=1] = 1 # put back in design interval
-    }
-    
-    x1 = x^powers[1]
-    x2 = log(x) * x^powers[1]
-    z1 = z^powers[1]
-    z2 = log(z) * z^powers[2]
-  }
-  else {
-    x1 = x^powers[1]
-    x2 = x^powers[2]
-    z1 = z^powers[1]
-    z2 = z^powers[2]
-  }
-  
-  # compute eta
-  # additional log terms not implemented yet
-  eta = betas[1] + betas[2] * x1 + betas[3] * x2
-  etaz = betas[1] + betas[2] * z1 + betas[3] * z2
-  
-  # weight functions
-  sigma = exp(eta)/(1+exp(eta))^2
-  sigmaz = exp(etaz)/(1+exp(etaz))^2
-  
-  # compute information matrix
-  # information matrix
-  # currently quadratic
-  M = 0
-  for (i in 1:pts) {
-    
-    # will need to update to use correct x functions
-    m12 = x1[i]
-    m13 = x2[i]
-    m23 = x1[i] * x2[i]
-    
-    M_i = w[i] * sigma[i] * matrix(c(
-      1, m12, m13,
-      m12, x1[i]^2, m23,
-      m13, m23, x2[i]^2
-    ), ncol=3)
-    
-    M = M + M_i
-    
-  }
-  
-  # compute matrix inverse and then sensitivity function
-  # avoid singular matrices
-  # solution from https://stackoverflow.com/questions/24961983/how-to-check-if-a-matrix-has-an-inverse-in-the-r-language
-  if (class(try(solve(M),silent=T))[1]!="matrix") {
-    # set Minv to something
-    #Minv = matrix(c(1,0,0,0,1,0,0,0,1), nrow=3)
-    y = 1
-  }
-  else {
-    # compute sensitivity function
-    Minv = solve(M)
-    b = c(1, z1, z2)
-    y = sigmaz * t(b) %*% Minv %*% b - 3
-  }
-  
-  
-  
-  return(y)
-  
-  
-}
-
-# plot sensitivity function
-# xvals: vector of x values to plot
-# vars: solution vector
-# betas: vector of coefficients
-# powers: vector of powers
-library(ggplot2)
-plot_sens = function(xvals, vars, betas, powers) {
-  
-  # compute sens function
-  yvals = sapply(xvals, sens, vars, betas, powers)
-  
-  # old base R plots
-  # plot(yvals ~ xvals, type ="l")
-  # abline(h=0)
-  
-  # replaced with ggplot because can return plot object
-  p = ggplot(mapping = aes(y = yvals, x = xvals)) + 
-    geom_line(color = "blue") + 
-    geom_hline(yintercept = 0) +
-    theme_bw() +
-    labs(title = "Equivalence Theorem Check") +
-    xlab("x") + ylab("Standardized variance")
-  
-  return(p)
-}
+files.sources = list.files(path = "./R")
+#cat(file=stderr(), files.sources)
+files.sources = files.sources[files.sources != "app.R"] # don't call app
+files.sources = paste("R/", files.sources, sep = "") # add directory name
+sapply(files.sources, source)
 
 server <- function(input, output, session) {
   
@@ -248,7 +43,7 @@ server <- function(input, output, session) {
       # geom_point(aes(color = color,
       #                shape = shape), size = 5) +
       geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-      lims(x = c(1, 10), y = c(0, 1)) +
+      lims(x = c(1, input$fp_bound), y = c(0, 1)) +
       theme_bw() + 
       # include so that colors don't change as more color/shape chosen
       #scale_color_discrete(drop = FALSE) +
@@ -310,85 +105,53 @@ server <- function(input, output, session) {
     # calculate number of successes
     successes = round(model_data$y * 100)
     
-    # loop over all values of fractional powers
-    # find lowest AIC
-    num_models = length(frac.powers)^2
-    result = c(1,1,1)
-    for (p1 in frac.powers) {
-      for (p2 in frac.powers) {
-        
-        # create x variables
-        x1 = model_data$x^p1
-        if (p1 == p2)
-          x2 = log(model_data$x) * model_data$x^p2
-        else
-          x2 = model_data$x^p2
-        
-        
-        
-        # fit model 
-        mod.p1.p2 = glm(cbind(successes, 100 - successes) ~ x1 + x2,
-                        family = binomial)
-        
-        # record AIC
-        result = rbind(result, c(AIC(mod.p1.p2), p1, p2))
-        
-      }
-    }
-    
-    # remove first row
-    result = result[-1, ]
-    
-    # find min aic
-    min_aic_index = which.min(result[, 1])
-    
-    # get every needed to refit model
-    p1 = result[min_aic_index, 2]
-    p2 = result[min_aic_index, 3]
-    
-    # create x variables
-    x1 = model_data$x^p1
-    if (p1 == p2)
-      x2 = log(model_data$x) * model_data$x^p2
-    else
-      x2 = model_data$x^p2
-    
-    # fit model 
-    mod = glm(cbind(successes, 100 - successes) ~ x1 + x2,
-              family = binomial)
-    
-    # add predicted values to plot
-    # these are the predicted probabilities
-    yhat = predict(mod, type = "response")
+    out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
     
     # save to reactive object
-    values$DT$yhat = yhat
+    values$DT$yhat = out$yhat
     
+    # save data
+    values$p1 = out$p1
+    values$p2 = out$p2
+    values$beta0 = out$beta0
+    values$beta1 = out$beta1
+    values$beta2 = out$beta2
+    values$bound = input$fp_bound
     
-    # return
-    # give powers labels
-    # out = c(coef(mod), p1, p2)
-    # names(out) = c(names(out)[1:length(coef(mod))], 'p1', 'p2')
-    # out
-    
-    # change values in inputs
-    # have to get rid of names
-    p1 = unname(p1)
-    p2 = unname(p2)
-    beta = coef(mod)
-    beta0 = unname(beta[1])
-    beta1 = unname(beta[2])
-    beta2 = unname(beta[3])
-    updateNumericInput(session, "p1", value = p1)
-    updateNumericInput(session, "p2", value = p2)
-    updateNumericInput(session, "b0", value = beta0)
-    updateNumericInput(session, "b1", value = beta1)
-    updateNumericInput(session, "b2", value = beta2)
   })
   
-  # output$model_out <- renderPrint(
-  #   mod()
-  # )
+  # copy fitted model info to design inputs
+  # needs something to show success
+  observeEvent(input$copymodel, {
+    updateNumericInput(session, "p1", value = values$p1)
+    updateNumericInput(session, "p2", value = values$p2)
+    updateNumericInput(session, "b0", value = values$beta0)
+    updateNumericInput(session, "b1", value = values$beta1)
+    updateNumericInput(session, "b2", value = values$beta2)
+    updateNumericInput(session, "bound", value = values$bound)
+    
+  })
+  
+  output$model_out = renderPrint({
+    
+    # check for no model run
+    if (length(values$beta0)==0) {
+      print("No model")
+    }
+    else {
+      print("p1:")
+      print(values$p1)
+      print("p2:")
+      print(values$p2)
+      print("beta0:")
+      print(values$beta0)
+      print("beta1:")
+      print(values$beta1)
+      print("beta2:")
+      print(values$beta2)
+    }
+  })
+  
   
   ############################################################################
   # code for finding optimal design
@@ -421,11 +184,21 @@ server <- function(input, output, session) {
     on.exit(waiter$hide())
     
     # model pararms
-    powers = as.numeric(c(input$p1, input$p2))
-    betas = c(input$b0, input$b1, input$b2)
+    # switch depending on if p3 or beta3 are missing
+    if (is.na(input$p3) | is.na(input$b3)) {
+      powers = as.numeric(c(input$p1, input$p2))
+      betas = c(input$b0, input$b1, input$b2)
+      degree = 2
+    }
+    else {
+      powers = as.numeric(c(input$p1, input$p2, input$p3))
+      betas = c(input$b0, input$b1, input$b2, input$b3)
+      degree = 3
+    }
+    
     
     # algorithm options
-    alg = input$alg
+    alg = metaheur_dict(input$alg)
     iter = input$iter
     swarm = input$swarm
     
@@ -434,11 +207,12 @@ server <- function(input, output, session) {
     bound = input$bound
     
     # find optimal design
-    od = ODpoly(powers, betas, alg, iter, swarm, pts, bound)
+    od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree)
     
     # store in reactive data
     values$OD$design = od$design
     values$OD$plot = od$plot
+    values$OD$val = od$value
     
     
   })
@@ -446,12 +220,19 @@ server <- function(input, output, session) {
   # update design output
   output$design_out = renderPrint({
     
+    
+    
+    obj_val = values$OD$val
     raw = values$OD$design
     
     # case if algorithm hasn't run
     if (length(raw) == 0)
       out = "No design"
     else { # all other cases
+      
+      # display objective value
+      print("-log(Det(M)) = ")
+      print(obj_val)
       
       l = length(raw)
       
@@ -466,6 +247,7 @@ server <- function(input, output, session) {
       
       
       # combine weights of identical points
+      # sort as well
       xs = raw[1:(l/2)]
       ws = raw[(l/2+1):l]
       if (length(unique(xs)) != length(xs)) {
@@ -498,8 +280,15 @@ server <- function(input, output, session) {
       # magic
       raw = c(raw)
       
-      names(raw) = labs
+      # sort by x's
+      raw_x = raw[1:(l/2)]
+      raw_w = raw[(l/2 + 1):l]
+      r = rank(raw_x)
+      raw_x = raw_x[r]
+      raw_w = raw_w[r]
+      raw = c(raw_x, raw_w)
       
+      names(raw) = labs
       
       out = raw
     }
