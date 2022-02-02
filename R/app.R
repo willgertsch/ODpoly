@@ -153,6 +153,26 @@ ODpolyApp <- function(...) {
                "Fractional Polynomials on Probability Scale"
              ),
              
+             tags$p("
+                    The coefficients and powers for the fractional polynomial model can be difficult to interpret, especially in the case of modeling the response probablity.
+                    The probability of response for the logistic model with fractional polynomial predictor \\( \\eta \\) is
+                    $$
+                    p = \\frac{1}{1 + e^{-\\eta}}
+                    $$
+                    Thus it is difficult to match parameter values to the desired shape of the response curve.
+                    "),
+             tags$p("
+                    This app allows the user to obtain fractional polynomial parameters for a desired curve shape. Usage is as follows:
+                    "),
+             tags$ol(
+               tags$li("Select desired options for upper bound and degree of polynomial."),
+               tags$li("Click on plot to generate data for the probability of response at each X value."),
+               tags$li("Click the \"Fit\" button to fit a fractional polynomial model to the data. 
+                       All fractional polynomials with powers from the set {2, -1, -1/2, 0, 1/2, 1, 2, 3} will be fit to the data and the model with the lowest AIC will be returned"
+                       ),
+               tags$li("If desired, clicking \"Copy model to design input\" will transfer the resulting model to the design tab to find the optimal design.")
+               ),
+             
              sidebarLayout(
                sidebarPanel(
                  "Options",
@@ -234,8 +254,8 @@ ODpolyApp <- function(...) {
         # include so that colors don't change as more color/shape chosen
         #scale_color_discrete(drop = FALSE) +
         #scale_shape_discrete(drop = FALSE) +
-        labs(y = "probability of response", x = "dose",
-             title = "Click plot to enter data.\nClick \"Fit\" to fit a fractional polynomial to the data")
+        labs(y = "probability of response", x = "X",
+             title = "Best FP fit")
         
       
       # if there non NA values for the predicted values, plot these as well
