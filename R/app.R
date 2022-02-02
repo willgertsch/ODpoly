@@ -212,7 +212,8 @@ ODpolyApp <- function(...) {
                        For example, in clinical trials the upper bound could be the maximum safe dosage.
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
-                       The algorithm should take 10-20 seconds to find the design for default algorithm options.")
+                       The algorithm should take 10-20 seconds to find the design for default algorithm options.
+                       Design points and weights are displayed rounded to 3 decimal places")
                
              ),
              
@@ -369,19 +370,27 @@ ODpolyApp <- function(...) {
       
       # check for no model run
       if (length(values$beta0)==0) {
-        print("No model")
+        # print("No model")
+        cat("No Model\n")
       }
       else {
-        print("p1:")
-        print(values$p1)
-        print("p2:")
-        print(values$p2)
-        print("beta0:")
-        print(values$beta0)
-        print("beta1:")
-        print(values$beta1)
-        print("beta2:")
-        print(values$beta2)
+        # print("p1:")
+        # print(values$p1)
+        # print("p2:")
+        # print(values$p2)
+        # print("beta0:")
+        # print(values$beta0)
+        # print("beta1:")
+        # print(values$beta1)
+        # print("beta2:")
+        # print(values$beta2)
+        cat("p1: ", values$p1, "\n",
+            "p2: ", values$p2, "\n",
+            "beta0: ", values$beta0, "\n",
+            "beta1: ", values$beta1, "\n",
+            "beta2: ", values$beta2, "\n",
+            sep = ""
+            )
       }
     })
     
@@ -459,13 +468,14 @@ ODpolyApp <- function(...) {
       raw = values$OD$design
       
       # case if algorithm hasn't run
-      if (length(raw) == 0)
-        out = "No design"
+      if (length(raw) == 0) {
+        cat("No design") 
+      }
       else { # all other cases
         
         # display objective value
-        print("-log(Det(M)) = ")
-        print(obj_val)
+        cat("-log(Det(M)) = ", obj_val, "\n", sep = "")
+        #print(obj_val)
         
         l = length(raw)
 
@@ -475,7 +485,7 @@ ODpolyApp <- function(...) {
           w_indices = x_indices + l/2
           raw = raw[,-c(x_indices, w_indices)]
           l = length(raw)
-          print("Purged points with weight 0")
+          cat("Purged points with weight 0\n")
         }
         
 
@@ -495,19 +505,21 @@ ODpolyApp <- function(...) {
           
           raw = c(xs, ws)
           l = length(raw)
-          print("Combined identical points")
+          #print("Combined identical points")
+          cat("Combined identical points\n")
         }
         
         
         
         # labeling
         # probably a better way to do this
-        labs = character(l)
+        # labs is a function => call it labbs
+        labbs = character(l)
         for (i in 1:(l/2)) {
-          labs[i] = paste("x", toString(i), sep = "")
+          labbs[i] = paste("x", toString(i), sep = "")
         }
         for (i in (l/2 + 1):l) {
-          labs[i] = paste("w", toString(i-l/2), sep = "")
+          labbs[i] = paste("w", toString(i-l/2), sep = "")
         }
         
         # magic
@@ -521,12 +533,16 @@ ODpolyApp <- function(...) {
         raw_w = raw_w[r]
         raw = c(raw_x, raw_w)
 
-        names(raw) = labs
+        names(raw) = labbs
         
         out = raw
+        #raw
+        cat(labbs[1:(l/2)], "\n", sep = "    ")
+        cat(round(out[1:(l/2)], 3), "\n")
+        cat(labbs[(l/2 + 1):l], "\n", sep = "    ")
+        cat(round(out[(l/2 + 1):l], 3))
       }
-        
-      out
+      
     })
   }
   
