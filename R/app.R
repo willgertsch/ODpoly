@@ -195,16 +195,37 @@ ODpolyApp <- function(...) {
              titlePanel(
                "Find the optimal design"
              ),
+             tags$p(
+               "This app allows the user to find locally D-optimal designs for fractional polynomials using a variety of metaheuristic optimization algorithms.
+               Usage is as follows:"
+             ),
+             tags$ol(
+               tags$li("Set power and beta values from prior knowledge or use the fractional polynomial tab to generate values associated with a desired shape.
+                       If power 3 and beta 3 are set to NA, then a degree 2 polynomial is assumed.
+                       Otherwise, a cubic will be used."),
+               tags$li("Choose algorithm, number of iterations, and swarm size. These may need to be tweaked based on the specific design problem.
+                       If the default algorithm fails to converge, try increasing the number of iterations and/or swarm size.
+                       Trying another algorithm may also improve performance on specific problems"),
+               tags$li("Choose the maximum number of design points. If you specify more points than are in the optimal design, the algorithm will try to merge repeated points or those with low weights. 
+                       Adding a few more points than are necessary can also help convergence to the optimal design."),
+               tags$li("Select the desired upper bound for the design. This should be set based on the context of the problem. 
+                       For example, in clinical trials the upper bound could be the maximum safe dosage.
+                       Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
+               tags$li("Click the \"Find\" button to find the optimal design given the inputs.
+                       The algorithm should take 10-20 seconds to find the design for default algorithm options.")
+               
+             ),
+             
              sidebarLayout(
                sidebarPanel(
                  # inputs
                  selectInput("p1", "Power 1", frac.powers, selected = 2),
                  selectInput("p2", "Power 2", frac.powers, selected = -2),
                  selectInput("p3", "Power 3", c(frac.powers, NA), selected = NA),
-                 numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
-                 numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
-                 numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
-                 numericInput("b3", "Beta3", NA, -Inf, Inf, 0.01),
+                 numericInput("b0", "Beta 0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
+                 numericInput("b1", "Beta 1", 1, -Inf, Inf, 0.01),
+                 numericInput("b2", "Beta 2", -4, -Inf, Inf, 0.01),
+                 numericInput("b3", "Beta 3", NA, -Inf, Inf, 0.01),
                  selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
                  numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
@@ -220,7 +241,7 @@ ODpolyApp <- function(...) {
                  #actionButton("clear", "Clear all"),
                  #verbatimTextOutput("model_out"),
                  plotOutput("sens_plot"),
-                 actionButton("find", "Find optimal design"),
+                 actionButton("find", "Find"),
                  waiter::use_waiter(),
                  verbatimTextOutput("design_out")
                )
