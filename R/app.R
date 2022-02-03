@@ -176,7 +176,8 @@ ODpolyApp <- function(...) {
              sidebarLayout(
                sidebarPanel(
                  "Options",
-                 numericInput("fp_bound", "Upper bound", 10, 1, NA, 1)
+                 numericInput("fp_bound", "Upper bound", 10, 1, NA, 1),
+                 selectInput("fpdegree", "Degree", c(2, 3), selected = 2)
                  
                ),
                mainPanel(
@@ -334,8 +335,15 @@ ODpolyApp <- function(...) {
       
       # calculate number of successes
       successes = round(model_data$y * 100)
-  
-      out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
+      
+      # fit either 2 or 3 degree polynomial
+      if (input$fpdegree == 2) {
+        out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
+      }
+      else if (input$fpdegree == 3) {
+        out = fitted_logistic_fp3(successes, model_data$x, frac.powers)
+      }
+      
       
       # save to reactive object
       values$DT$yhat = out$yhat
@@ -347,6 +355,12 @@ ODpolyApp <- function(...) {
       values$beta1 = out$beta1
       values$beta2 = out$beta2
       values$bound = input$fp_bound
+      
+      # save degree values
+      if (input$fpdegree == 3) {
+        values$beta3 = out$beta3
+        values$p3  = out$p3
+      }
       
     })
     
@@ -360,9 +374,16 @@ ODpolyApp <- function(...) {
       updateNumericInput(session, "b2", value = values$beta2)
       updateNumericInput(session, "bound", value = values$bound)
       
-      # set cubic options to NA
-      updateNumericInput(session, "p3", value = NA)
-      updateNumericInput(session, "b3", value = NA)
+      # set cubic options to NA if quadratic model is fit
+      if (input$fpdegree == 2) {
+        updateNumericInput(session, "p3", value = NA)
+        updateNumericInput(session, "b3", value = NA)
+      }
+      else if (input$fpdegree == 3) {
+        updateNumericInput(session, "p3", value = values$p3)
+        updateNumericInput(session, "b3", value = values$beta3)
+      }
+      
       
     })
     
@@ -373,7 +394,7 @@ ODpolyApp <- function(...) {
         # print("No model")
         cat("No Model\n")
       }
-      else {
+      else if (input$fpdegree == 2) {
         # print("p1:")
         # print(values$p1)
         # print("p2:")
@@ -391,6 +412,17 @@ ODpolyApp <- function(...) {
             "beta2: ", values$beta2, "\n",
             sep = ""
             )
+      }
+      else if (input$fpdegree == 3) {
+        cat("p1: ", values$p1, "\n",
+            "p2: ", values$p2, "\n",
+            "p3: ", values$p3, "\n",
+            "beta0: ", values$beta0, "\n",
+            "beta1: ", values$beta1, "\n",
+            "beta2: ", values$beta2, "\n",
+            "beta3: ", values$beta3, "\n",
+            sep = ""
+        )
       }
     })
     
