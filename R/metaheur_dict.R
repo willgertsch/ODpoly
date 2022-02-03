@@ -11,4 +11,6 @@ metaheur_dict = function(fullname){
     return("MFO")
   else if (fullname == "Differential Evolution")
     return("DE")
+  else if (fullname == "Fast DE")
+    return("FDE")
 }

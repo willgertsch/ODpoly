@@ -7,7 +7,8 @@ metaheuristics = c("Particle Swarm Optimization",
                    "Grey Wolf Optimizer", 
                    "Harmony Search Algorithm", 
                    "Moth Flame Optimizer",
-                   "Differential Evolution")
+                   "Differential Evolution",
+                   "Fast DE")
 
 
 ODpolyApp <- function(...) {
@@ -473,6 +474,7 @@ ODpolyApp <- function(...) {
       
       # algorithm options
       alg = metaheur_dict(input$alg)
+      
       iter = input$iter
       swarm = input$swarm
       
