@@ -1,0 +1,53 @@
+# RcppDE.R
+# test of using this implementation of DE
+# hopefully should be faster
+library(RcppDE)
+
+# degree 2
+# model pararms
+powers = c(2, -2)
+betas = c(2, 1, -4)
+degree = 2
+obj_func = obj_function_factory(powers, betas, degree)
+neg_obj_func = function(x) {
+  return(-obj_func(x))
+}
+
+bound = 10
+pts = 3
+
+numVar = 2*pts
+lower = c(rep(0.1, pts), rep(0, pts))
+upper = c(rep(bound, pts), rep(1, pts))
+
+control = DEoptim.control(NP = 100, itermax = 1000, trace = F)
+set.seed(1234)
+out = DEoptim(neg_obj_func, lower, upper, control)
+
+out$optim
+
+# cubic test
+# parameters generated using the app
+powers = c(1, 1, 1)
+betas = c(3.192414, -7.733277, 7.02568, -1.62532)
+degree = 3
+obj_func = obj_function_factory(powers, betas, degree)
+neg_obj_func = function(x) {
+  return(-obj_func(x))
+}
+
+bound = 10
+pts = 6
+
+numVar = 2*pts
+lower = c(rep(0.1, pts), rep(0, pts))
+upper = c(rep(bound, pts), rep(1, pts))
+
+control = DEoptim.control(NP = 100, itermax = 1000, trace = F)
+set.seed(1234)
+out = DEoptim(neg_obj_func, lower, upper, control)
+
+out$optim
+
+
+
