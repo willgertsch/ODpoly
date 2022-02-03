@@ -58,5 +58,5 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   p = plot_sens(xs, sol$result, betas, powers, degree)
   
   # return
-  out = list(design = result, plot = p, value = c(sol$optimumValue))
+  out = list(design = result, plot = p, value = c(-sol$optimumValue))
 }
