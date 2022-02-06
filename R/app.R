@@ -43,17 +43,17 @@ ODpolyApp <- function(...) {
            "),
            
            tags$p("
-           Before running an experiment, it is important to think carefully about the design.
-           A good design can avoid waste, high costs, and improve statistical efficiency.
+           Before running an experiment, it is important to think carefully about its design.
+           A good design can avoid waste, minimize high costs, and improve statistical efficiency.
            Given that we plan to analyze the data using a fractional polynomial logistic model, we can optimize the dose levels and the number of subjects at each dose level to plan the best experiment for that model.
            "),
            
            
            
            tags$p("
-           This web app allows the user to find locally D-optimal designs for a degree 2 fractional polynomial logistic model using different metaheuristic optimization algorithms.
+           This web app allows the user to find locally D-optimal designs for degree 2 and 3 fractional polynomial logistic models using metaheuristic optimization algorithms.
            The designs are locally optimal, so the user must suppply regression coefficients and powers based on prior knowledge of the true dose-response curve.
-           These values may be obtained from literature or by inputing a curve shape in the app itself.
+           These values may be obtained from literature or by using the model fitting tool included in the app.
            "),
            
            tags$h3(
@@ -117,7 +117,7 @@ ODpolyApp <- function(...) {
            $$
            The D-optimal design is the design that minimizes the volume of confidence ellipsoid for the regression parameters.
            Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
-           Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
+           Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or on other prior information.
            "),
     tags$p("
            To check if a design is locally D-optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
@@ -125,7 +125,7 @@ ODpolyApp <- function(...) {
            ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
            $$
            for all values of \\( x\\) in the design space with equality at the optimal design points and where \\(p\\) is the number of regression coefficients.
-           Plotting \\(ch(x)\\) provides a graphical check of optimality.
+           Plotting \\(ch(x)\\) provides a simple graphical check of optimality.
            "),
     
     tags$h3(
@@ -134,10 +134,10 @@ ODpolyApp <- function(...) {
     ),
     
     tags$p(
-      "Recall that finding the optimal design requires maximizing or minimizing \\(\\Psi(M(\\beta, \\mathbf{p}))\\).
-      Because the objective function for this model is complex, we use metaheuristic optimization algorithms.
-      These algorithms are general purpose and are able to handle constraints, non-convexity, and a large number of variables.
-      One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem provides an easy way to check if the optimum has been reached.
+      "Recall that finding the optimal design requires maximizing or minimizing an objective function.
+      Because the objective function for this model is complex with many special cases, we use metaheuristic optimization algorithms.
+      These algorithms are very flexible and are able to handle constraints, non-convexity, and a large number of variables.
+      One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem mentioned earlier provides an easy way to check if the optimum has been reached.
       "
     ),
     
