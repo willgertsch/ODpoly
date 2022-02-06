@@ -11,6 +11,7 @@
 # pts: number of design points
 # bound: upper bound for design interval
 library(metaheuristicOpt)
+library(DEoptim)
 ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2) {
   
   # define objective function
@@ -27,10 +28,19 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
     lower = c(rep(0.1, pts), rep(0, pts))
     upper = c(rep(bound, pts), rep(1, pts))
     
+    # initial values
+    # start as equally weighted uniform design
+    # init = matrix(rep(c(seq(.1, bound, length.out=pts),
+    #                     rep(1/pts, pts)), swarm), nrow=swarm, byrow=T)
+    
+    # equally weighted random design
+    # init = matrix(rep(c(runif(pts, 0.1, bound),
+    #                     rep(1/pts, pts)), swarm), nrow=swarm, byrow=T)
+    
     # set algorithm params
     control = DEoptim.control(NP = swarm, itermax = iter, trace = F)
     
-    # run Rccp implementation of DE
+    # run faster implementation of DE
     out = DEoptim(neg_obj_func, lower, upper, control)
     sol = list(result = out$optim$bestmem, optimumValue = out$optim$bestval)
   }
