@@ -113,9 +113,9 @@ ODpolyApp <- function(...) {
            An experimental design \\(\\xi\\) may be expressed as a collection of design points \\(x_1, \\dots, x_k\\) and weights \\(w_1, \\dots, w_k\\)  for a fixed sample size \\(N\\).
            Multiplying \\(w_i\\) by \\(N\\) gives the approximate number of samples at predictor value \\(x_i\\).
            The design \\(\\xi\\) is optimal if it maximizes or minimizes some function of the model information matrix \\(M(\\beta, \\mathbf{p})\\).
-           For example, D-optimality minimizes
+           For example, D-optimality maximizes
            $$
-           \\Psi(M(\\beta, \\mathbf{p})) = -\\log (|M(\\beta, \\mathbf{p})|)
+           \\Psi(M(\\beta, \\mathbf{p})) = \\log (|M(\\beta, \\mathbf{p})|)
            $$
            The D-optimal design is the design that minimizes the volume of confidence ellipsoid for the regression parameters.
            Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
@@ -510,7 +510,7 @@ ODpolyApp <- function(...) {
       else { # all other cases
         
         # display objective value
-        cat("-log(Det(M)) = ", obj_val, "\n", sep = "")
+        cat("log(Det(M)) = ", obj_val, "\n", sep = "")
         #print(obj_val)
         
         l = length(raw)

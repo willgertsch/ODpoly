@@ -43,7 +43,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
     
     # run faster implementation of DE
     out = DEoptim(neg_obj_func, lower, upper, control)
-    sol = list(result = out$optim$bestmem, optimumValue = out$optim$bestval)
+    sol = list(result = out$optim$bestmem, optimumValue = -out$optim$bestval)
   }
   else {
     # set up for metaheuristics
@@ -69,5 +69,5 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   p = plot_sens(xs, sol$result, betas, powers, degree)
   
   # return
-  out = list(design = result, plot = p, value = c(-sol$optimumValue))
+  out = list(design = result, plot = p, value = c(sol$optimumValue))
 }
