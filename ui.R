@@ -3,11 +3,14 @@ library(waiter)
 
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
-metaheuristics = c("Particle Swarm Optimization", 
-                   "Grey Wolf Optimizer", 
-                   "Harmony Search Algorithm", 
-                   "Moth Flame Optimizer",
-                   "Differential Evolution")
+metaheuristics = c(
+  "Differential Evolution",
+  "Particle Swarm Optimization",
+  "Fast DE",
+  "Grey Wolf Optimizer",
+  "Harmony Search Algorithm",
+  "Moth Flame Optimizer"
+)
 
 ui <- fixedPage(
   withMathJax(),
@@ -40,17 +43,17 @@ ui <- fixedPage(
            "),
            
            tags$p("
-           Before running an experiment, it is important to think carefully about the design.
-           A good design can avoid waste, high costs, and improve statistical efficiency.
+           Before running an experiment, it is important to think carefully about its design.
+           A good design can avoid waste, minimize high costs, and improve statistical efficiency.
            Given that we plan to analyze the data using a fractional polynomial logistic model, we can optimize the dose levels and the number of subjects at each dose level to plan the best experiment for that model.
            "),
            
            
            
            tags$p("
-           This web app allows the user to find locally D-optimal designs for a degree 2 fractional polynomial logistic model using different metaheuristic optimization algorithms.
+           This web app allows the user to find locally D-optimal designs for degree 2 and 3 fractional polynomial logistic models using metaheuristic optimization algorithms.
            The designs are locally optimal, so the user must suppply regression coefficients and powers based on prior knowledge of the true dose-response curve.
-           These values may be obtained from literature or by inputing a curve shape in the app itself.
+           These values may be obtained from literature or by using the model fitting tool included in the app.
            "),
            
            tags$h3(
@@ -114,7 +117,7 @@ ui <- fixedPage(
            $$
            The D-optimal design is the design that minimizes the volume of confidence ellipsoid for the regression parameters.
            Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
-           Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or theory.
+           Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or on other prior information.
            "),
     tags$p("
            To check if a design is locally D-optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
@@ -122,7 +125,7 @@ ui <- fixedPage(
            ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
            $$
            for all values of \\( x\\) in the design space with equality at the optimal design points and where \\(p\\) is the number of regression coefficients.
-           Plotting \\(ch(x)\\) provides a graphical check of optimality.
+           Plotting \\(ch(x)\\) provides a simple graphical check of optimality.
            "),
     
     tags$h3(
@@ -131,10 +134,10 @@ ui <- fixedPage(
     ),
     
     tags$p(
-      "Recall that finding the optimal design requires maximizing or minimizing \\(\\Psi(M(\\beta, \\mathbf{p}))\\).
-      Because the objective function for this model is complex, we use metaheuristic optimization algorithms.
-      These algorithms are general purpose and are able to handle constraints, non-convexity, and a large number of variables.
-      One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem provides an easy way to check if the optimum has been reached.
+      "Recall that finding the optimal design requires maximizing or minimizing an objective function.
+      Because the objective function for this model is complex with many special cases, we use metaheuristic optimization algorithms.
+      These algorithms are very flexible and are able to handle constraints, non-convexity, and a large number of variables.
+      One downside is that there is no guarantee that these algorithms will converge to the optimal design, but the equivalence theorem mentioned earlier provides an easy way to check if the optimum has been reached.
       "
     ),
     
@@ -151,10 +154,31 @@ ui <- fixedPage(
                "Fractional Polynomials on Probability Scale"
              ),
              
+             tags$p("
+                    The coefficients and powers for the fractional polynomial model can be difficult to interpret, especially in the case of modeling the response probablity.
+                    The probability of response for the logistic model with fractional polynomial predictor \\( \\eta \\) is
+                    $$
+                    p = \\frac{1}{1 + e^{-\\eta}}
+                    $$
+                    Thus it is difficult to match parameter values to the desired shape of the response curve.
+                    "),
+             tags$p("
+                    This app allows the user to obtain fractional polynomial parameters for a desired curve shape. Usage is as follows:
+                    "),
+             tags$ol(
+               tags$li("Select desired options for upper bound and degree of polynomial."),
+               tags$li("Click on plot to generate data for the probability of response at each X value."),
+               tags$li("Click the \"Fit\" button to fit a fractional polynomial model to the data. 
+                       All fractional polynomials with powers from the set {2, -1, -1/2, 0, 1/2, 1, 2, 3} will be fit to the data and the model with the lowest AIC will be returned"
+               ),
+               tags$li("If desired, clicking \"Copy model to design input\" will transfer the resulting model to the design tab to find the optimal design.")
+             ),
+             
              sidebarLayout(
                sidebarPanel(
                  "Options",
-                 numericInput("fp_bound", "Upper bound", 10, 1, NA, 1)
+                 numericInput("fp_bound", "Upper bound", 10, 1, NA, 1),
+                 selectInput("fpdegree", "Degree", c(2, 3), selected = 2)
                  
                ),
                mainPanel(
@@ -173,16 +197,38 @@ ui <- fixedPage(
              titlePanel(
                "Find the optimal design"
              ),
+             tags$p(
+               "This app allows the user to find locally D-optimal designs for fractional polynomials using a variety of metaheuristic optimization algorithms.
+               Usage is as follows:"
+             ),
+             tags$ol(
+               tags$li("Set power and beta values from prior knowledge or use the fractional polynomial tab to generate values associated with a desired shape.
+                       If power 3 and beta 3 are set to NA, then a degree 2 polynomial is assumed.
+                       Otherwise, a cubic will be used."),
+               tags$li("Choose algorithm, number of iterations, and swarm size. These may need to be tweaked based on the specific design problem.
+                       If the default algorithm fails to converge, try increasing the number of iterations and/or swarm size.
+                       Trying another algorithm may also improve performance on specific problems"),
+               tags$li("Choose the maximum number of design points. If you specify more points than are in the optimal design, the algorithm will try to merge repeated points or those with low weights. 
+                       Adding a few more points than are necessary can also help convergence to the optimal design."),
+               tags$li("Select the desired upper bound for the design. This should be set based on the context of the problem. 
+                       For example, in clinical trials the upper bound could be the maximum safe dosage.
+                       Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
+               tags$li("Click the \"Find\" button to find the optimal design given the inputs.
+                       The algorithm should take 10-20 seconds to find the design for default algorithm options.
+                       Design points and weights are displayed rounded to 3 decimal places")
+               
+             ),
+             
              sidebarLayout(
                sidebarPanel(
                  # inputs
                  selectInput("p1", "Power 1", frac.powers, selected = 2),
                  selectInput("p2", "Power 2", frac.powers, selected = -2),
                  selectInput("p3", "Power 3", c(frac.powers, NA), selected = NA),
-                 numericInput("b0", "Beta0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
-                 numericInput("b1", "Beta1", 1, -Inf, Inf, 0.01),
-                 numericInput("b2", "Beta2", -4, -Inf, Inf, 0.01),
-                 numericInput("b3", "Beta3", NA, -Inf, Inf, 0.01),
+                 numericInput("b0", "Beta 0", 2, -Inf, Inf, 0.01), # bad idea to use inf? probably
+                 numericInput("b1", "Beta 1", 1, -Inf, Inf, 0.01),
+                 numericInput("b2", "Beta 2", -4, -Inf, Inf, 0.01),
+                 numericInput("b3", "Beta 3", NA, -Inf, Inf, 0.01),
                  selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
                  numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
@@ -198,7 +244,7 @@ ui <- fixedPage(
                  #actionButton("clear", "Clear all"),
                  #verbatimTextOutput("model_out"),
                  plotOutput("sens_plot"),
-                 actionButton("find", "Find optimal design"),
+                 actionButton("find", "Find"),
                  waiter::use_waiter(),
                  verbatimTextOutput("design_out")
                )

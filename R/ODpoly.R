@@ -18,6 +18,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   obj_func = obj_function_factory(powers, betas, degree)
   
   # separate flow for using RccpDE package
+  #cat(file=stderr(), length(alg))
   if (alg == "FDE") {
     # have to flip objective function
     neg_obj_func = function(x) {

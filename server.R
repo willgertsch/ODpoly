@@ -2,22 +2,11 @@ library(shiny)
 library(waiter)
 
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
-metaheur_dict = function(fullname){
-  if (fullname == "Particle Swarm Optimization")
-    return("PSO")
-  else if (fullname == "Grey Wolf Optimizer")
-    return("GWO")
-  else if (fullname == "Harmony Search Algorithm")
-    return("HS")
-  else if (fullname == "Moth Flame Optimizer")
-    return("MFO")
-  else if (fullname == "Differential Evolution")
-    return("DE")
-}
 
 # load other source files
 # and libraries
 library(metaheuristicOpt)
+library(DEoptim)
 files.sources = list.files(path = "./R")
 #cat(file=stderr(), files.sources)
 files.sources = files.sources[files.sources != "app.R"] # don't call app
@@ -38,18 +27,19 @@ server <- function(input, output, session) {
   )
   
   ## 2. Create a plot
+  # x lower bound tries to be reasonably close to 0
   output$plot1 = renderPlot({
     ggp = ggplot(values$DT, aes(x = x, y = y)) +
       # geom_point(aes(color = color,
       #                shape = shape), size = 5) +
       geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
-      lims(x = c(1, input$fp_bound), y = c(0, 1)) +
+      lims(x = c(0.1, input$fp_bound), y = c(0, 1)) +
       theme_bw() + 
       # include so that colors don't change as more color/shape chosen
       #scale_color_discrete(drop = FALSE) +
       #scale_shape_discrete(drop = FALSE) +
-      labs(y = "probability of response", x = "dose",
-           title = "Click plot to enter data.\nClick \"Fit\" to fit a fractional polynomial to the data")
+      labs(y = "probability of response", x = "X",
+           title = "Best FP fit")
     
     
     # if there non NA values for the predicted values, plot these as well
@@ -68,9 +58,11 @@ server <- function(input, output, session) {
     # y is the number of positive responses received
     # this gives a binomial response
     
-    # make sure y is positive
+    # make sure x and y are positive
+    # this fixes missing values and is required for FP anyways
+    x_coord = max(0.1, input$plot_click$x)
     y_coord = max(0, input$plot_click$y)
-    add_row <- data.frame(x = input$plot_click$x,
+    add_row <- data.frame(x = x_coord,
                           y = y_coord,
                           yhat = NA
                           #color = factor(input$color, levels = c("Pink", "Green", "Blue")),
@@ -105,7 +97,14 @@ server <- function(input, output, session) {
     # calculate number of successes
     successes = round(model_data$y * 100)
     
-    out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
+    # fit either 2 or 3 degree polynomial
+    if (input$fpdegree == 2) {
+      out = fitted_logistic_fp2(successes, model_data$x, frac.powers)
+    }
+    else if (input$fpdegree == 3) {
+      out = fitted_logistic_fp3(successes, model_data$x, frac.powers)
+    }
+    
     
     # save to reactive object
     values$DT$yhat = out$yhat
@@ -117,6 +116,12 @@ server <- function(input, output, session) {
     values$beta1 = out$beta1
     values$beta2 = out$beta2
     values$bound = input$fp_bound
+    
+    # save degree values
+    if (input$fpdegree == 3) {
+      values$beta3 = out$beta3
+      values$p3  = out$p3
+    }
     
   })
   
@@ -130,25 +135,55 @@ server <- function(input, output, session) {
     updateNumericInput(session, "b2", value = values$beta2)
     updateNumericInput(session, "bound", value = values$bound)
     
+    # set cubic options to NA if quadratic model is fit
+    if (input$fpdegree == 2) {
+      updateNumericInput(session, "p3", value = NA)
+      updateNumericInput(session, "b3", value = NA)
+    }
+    else if (input$fpdegree == 3) {
+      updateNumericInput(session, "p3", value = values$p3)
+      updateNumericInput(session, "b3", value = values$beta3)
+    }
+    
+    
   })
   
   output$model_out = renderPrint({
     
     # check for no model run
     if (length(values$beta0)==0) {
-      print("No model")
+      # print("No model")
+      cat("No Model\n")
     }
-    else {
-      print("p1:")
-      print(values$p1)
-      print("p2:")
-      print(values$p2)
-      print("beta0:")
-      print(values$beta0)
-      print("beta1:")
-      print(values$beta1)
-      print("beta2:")
-      print(values$beta2)
+    else if (input$fpdegree == 2) {
+      # print("p1:")
+      # print(values$p1)
+      # print("p2:")
+      # print(values$p2)
+      # print("beta0:")
+      # print(values$beta0)
+      # print("beta1:")
+      # print(values$beta1)
+      # print("beta2:")
+      # print(values$beta2)
+      cat("p1: ", values$p1, "\n",
+          "p2: ", values$p2, "\n",
+          "beta0: ", values$beta0, "\n",
+          "beta1: ", values$beta1, "\n",
+          "beta2: ", values$beta2, "\n",
+          sep = ""
+      )
+    }
+    else if (input$fpdegree == 3) {
+      cat("p1: ", values$p1, "\n",
+          "p2: ", values$p2, "\n",
+          "p3: ", values$p3, "\n",
+          "beta0: ", values$beta0, "\n",
+          "beta1: ", values$beta1, "\n",
+          "beta2: ", values$beta2, "\n",
+          "beta3: ", values$beta3, "\n",
+          sep = ""
+      )
     }
   })
   
@@ -199,6 +234,7 @@ server <- function(input, output, session) {
     
     # algorithm options
     alg = metaheur_dict(input$alg)
+    
     iter = input$iter
     swarm = input$swarm
     
@@ -226,13 +262,14 @@ server <- function(input, output, session) {
     raw = values$OD$design
     
     # case if algorithm hasn't run
-    if (length(raw) == 0)
-      out = "No design"
+    if (length(raw) == 0) {
+      cat("No design") 
+    }
     else { # all other cases
       
       # display objective value
-      print("-log(Det(M)) = ")
-      print(obj_val)
+      cat("-log(Det(M)) = ", obj_val, "\n", sep = "")
+      #print(obj_val)
       
       l = length(raw)
       
@@ -242,7 +279,7 @@ server <- function(input, output, session) {
         w_indices = x_indices + l/2
         raw = raw[,-c(x_indices, w_indices)]
         l = length(raw)
-        print("Purged points with weight 0")
+        cat("Purged points with weight 0\n")
       }
       
       
@@ -262,19 +299,21 @@ server <- function(input, output, session) {
         
         raw = c(xs, ws)
         l = length(raw)
-        print("Combined identical points")
+        #print("Combined identical points")
+        cat("Combined identical points\n")
       }
       
       
       
       # labeling
       # probably a better way to do this
-      labs = character(l)
+      # labs is a function => call it labbs
+      labbs = character(l)
       for (i in 1:(l/2)) {
-        labs[i] = paste("x", toString(i), sep = "")
+        labbs[i] = paste("x", toString(i), sep = "")
       }
       for (i in (l/2 + 1):l) {
-        labs[i] = paste("w", toString(i-l/2), sep = "")
+        labbs[i] = paste("w", toString(i-l/2), sep = "")
       }
       
       # magic
@@ -288,11 +327,15 @@ server <- function(input, output, session) {
       raw_w = raw_w[r]
       raw = c(raw_x, raw_w)
       
-      names(raw) = labs
+      names(raw) = labbs
       
       out = raw
+      #raw
+      cat(labbs[1:(l/2)], "\n", sep = "    ")
+      cat(round(out[1:(l/2)], 3), "\n")
+      cat(labbs[(l/2 + 1):l], "\n", sep = "    ")
+      cat(round(out[(l/2 + 1):l], 3))
     }
     
-    out
   })
 }

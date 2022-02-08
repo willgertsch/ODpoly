@@ -54,7 +54,7 @@ ODpolyApp <- function(...) {
            
            tags$p("
            This web app allows the user to find locally D-optimal designs for degree 2 and 3 fractional polynomial logistic models using metaheuristic optimization algorithms.
-           The designs are locally optimal, so the user must suppply regression coefficients and powers based on prior knowledge of the true dose-response curve.
+           The designs are locally optimal, so the user must supply regression coefficients and powers based on prior knowledge of the true dose-response curve.
            These values may be obtained from literature or by using the model fitting tool included in the app.
            "),
            
