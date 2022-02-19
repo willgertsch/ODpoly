@@ -28,7 +28,7 @@ ODpolyApp <- function(...) {
                          
                          tags$h3(
                            "Introduction",
-                           style="text-align:center;"
+                           style="text-align:left;"
                          ),
                          
                          tags$p("
@@ -60,7 +60,7 @@ ODpolyApp <- function(...) {
            
            tags$h3(
              "Fractional Polynomial Logistic Model",
-             style="text-align:center;"
+             style="text-align:left;"
            ),
            tags$p("
     Royston and Altman (1994) proposed fractional polynomials as a more flexible generalization of standard polynomials.
@@ -85,8 +85,15 @@ ODpolyApp <- function(...) {
     \\ln X & p_j = 0
     \\end{cases}
     $$
-    Royston and Altman argue that \\(m=2\\) with the set of powers \\(\\mathcal{P} = \\{ -2, -1, -0.5, 0, 0.5, 1, 2, 3\\}\\) is sufficient for most applications. 
+    Royston and Altman argue that \\(m=2\\) with the set of powers \\(\\mathcal{P} = \\{ -2, -1, -0.5, 0, 0.5, 1, 2, 3\\}\\) is sufficient for most applications.
+    Some examples of degree 2 fractional polynomials on this set are:
            "),
+    tags$ul(
+      tags$li("\\( \\beta_1 + \\beta_2 X^{-1} + \\beta_3 X^{-2}\\)"),
+      tags$li("\\( \\beta_1 + \\beta_2 \\sqrt{X} + \\beta_3 \\sqrt{X} \\ln (X)\\)"),
+      tags$li("\\( \\beta_1 + \\beta_2 \\ln (X) + \\beta_3 (\\ln (X))^2\\)"
+      )
+    ),
     
     tags$p("
     Suppose we have a binary outcome modeled as \\(y_i \\sim \\text{Bernoulli}(p_i)\\) for observations \\(i = 1, \\dots, n\\) and \\(0 \\leq p_i < 1\\). 
@@ -107,7 +114,7 @@ ODpolyApp <- function(...) {
     
     tags$h3(
       "Optimal Design",
-      style="text-align:center;"
+      style="text-align:left;"
     ),
     tags$p("
            An experimental design \\(\\xi\\) may be expressed as a collection of design points \\(x_1, \\dots, x_k\\) and weights \\(w_1, \\dots, w_k\\)  for a fixed sample size \\(N\\).
@@ -132,7 +139,7 @@ ODpolyApp <- function(...) {
     
     tags$h3(
       "Metaheurstic Optimization",
-      style="text-align:center;"[]
+      style="text-align:left;"[]
     ),
     
     tags$p(
