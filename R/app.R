@@ -169,7 +169,8 @@ ODpolyApp <- function(...) {
                     "),
              tags$ol(
                tags$li("Select desired options for upper bound and degree of polynomial."),
-               tags$li("Click on plot to generate data for the probability of response at each X value."),
+               tags$li("Click on plot to generate data for the probability of response at each X value. 
+                       It is also possible to upload a .csv file. This file should have the columns y and x with probabilities and dose levels respectively."),
                tags$li("Click the \"Fit\" button to fit a fractional polynomial model to the data. 
                        All fractional polynomials with powers from the set {2, -1, -1/2, 0, 1/2, 1, 2, 3} will be fit to the data and the model with the lowest AIC will be returned"
                        ),
