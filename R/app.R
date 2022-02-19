@@ -188,6 +188,7 @@ ODpolyApp <- function(...) {
                  actionButton("fit", "Fit"),
                  actionButton("rem_point", "Remove Last Point"),
                  actionButton("clear", "Clear all"),
+                 fileInput("upload", "Import data from file", accept = ".csv"),
                  verbatimTextOutput("model_out"),
                  actionButton("copymodel", "Copy model to design input")
                )
@@ -261,6 +262,7 @@ ODpolyApp <- function(...) {
     # thanks to this person: http://www.ostack.cn/?qa=733734/
     ## 1. set up reactive dataframe
     values <- reactiveValues()
+    values$upload_state = NULL # flag for managing file uploads
     values$DT <- data.frame(x = numeric(),
                             y = numeric(),
                             yhat = numeric()
@@ -271,6 +273,16 @@ ODpolyApp <- function(...) {
     ## 2. Create a plot
     # x lower bound tries to be reasonably close to 0
     output$plot1 = renderPlot({
+      
+      # update data frame if there is user imported ata
+      file_input()
+      # update upper bound based on data
+      if (length(values$DT$x > 0)) { # only correct if there is data
+        if (input$fp_bound < max(values$DT$x)) {
+          updateNumericInput(session, "fp_bound", value = max(values$DT$x))
+        }
+      }
+      
       ggp = ggplot(values$DT, aes(x = x, y = y)) +
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
@@ -428,6 +440,33 @@ ODpolyApp <- function(...) {
         )
       }
     })
+    
+    # thanks to https://stackoverflow.com/a/44206615
+    # plotting checks current upload state and updates data if there is user
+    # submitted data available
+    observeEvent(input$upload, {
+      values$upload_state <- 'uploaded'
+    })
+    
+    file_input <- reactive({
+      if (is.null(values$upload_state)) {
+        return(NULL)
+      } else if (values$upload_state == 'uploaded') {
+        
+        # use this to update plot data
+          import_data = check_import_data(read.csv(input$upload$datapath))
+          values$DT = data.frame(
+            y = import_data$y,
+            x = import_data$x,
+            yhat = rep(NA, nrow(import_data))
+          )
+          
+          
+        
+        return(NULL)
+      } 
+    })
+    
     
     
     ############################################################################
