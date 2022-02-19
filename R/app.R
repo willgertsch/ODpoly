@@ -378,6 +378,8 @@ ODpolyApp <- function(...) {
       values$beta1 = out$beta1
       values$beta2 = out$beta2
       values$bound = input$fp_bound
+      values$aic = out$aic
+      values$bic = out$bic
       
       # save degree values
       if (input$fpdegree == 3) {
@@ -418,21 +420,14 @@ ODpolyApp <- function(...) {
         cat("No Model\n")
       }
       else if (input$fpdegree == 2) {
-        # print("p1:")
-        # print(values$p1)
-        # print("p2:")
-        # print(values$p2)
-        # print("beta0:")
-        # print(values$beta0)
-        # print("beta1:")
-        # print(values$beta1)
-        # print("beta2:")
-        # print(values$beta2)
+
         cat("p1: ", values$p1, "\n",
             "p2: ", values$p2, "\n",
             "beta0: ", values$beta0, "\n",
             "beta1: ", values$beta1, "\n",
             "beta2: ", values$beta2, "\n",
+            "AIC: ", values$aic, "\n",
+            "BIC: ", values$bic, "\n",
             sep = ""
             )
       }
@@ -444,6 +439,8 @@ ODpolyApp <- function(...) {
             "beta1: ", values$beta1, "\n",
             "beta2: ", values$beta2, "\n",
             "beta3: ", values$beta3, "\n",
+            "AIC: ", values$aic, "\n",
+            "BIC: ", values$bic, "\n",
             sep = ""
         )
       }

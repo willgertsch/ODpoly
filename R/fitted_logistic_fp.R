@@ -62,7 +62,9 @@ fitted_logistic_fp2 = function(successes, x, powers) {
     p2 = unname(p2),
     beta0 = unname(beta[1]),
     beta1 = unname(beta[2]),
-    beta2 = unname(beta[3])
+    beta2 = unname(beta[3]),
+    aic = AIC(mod),
+    bic = BIC(mod)
     )
   
   return(out)
@@ -131,7 +133,9 @@ fitted_logistic_fp3 = function(successes, x, powers) {
     beta0 = unname(beta[1]),
     beta1 = unname(beta[2]),
     beta2 = unname(beta[3]),
-    beta3 = unname(beta[4])
+    beta3 = unname(beta[4]),
+    aic = AIC(mod),
+    bic = BIC(mod)
   )
   
   return(out)
