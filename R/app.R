@@ -303,7 +303,9 @@ ODpolyApp <- function(...) {
         #scale_color_discrete(drop = FALSE) +
         #scale_shape_discrete(drop = FALSE) +
         labs(y = "probability of response", x = "X",
-             title = "Best FP fit")
+             title = "Best FP fit") +
+        geom_abline(slope = 0, intercept = 0.5, linetype = 4) +
+        annotate(geom = "text", x = input$fp_bound, y = 0.55, label = "ED50")
         
       
       # if there non NA values for the predicted values, plot these as well
