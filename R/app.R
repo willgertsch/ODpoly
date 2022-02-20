@@ -244,7 +244,8 @@ ODpolyApp <- function(...) {
                  numericInput("iter", "Iterations", 1000, 1, 10e7, 1),
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                  numericInput("pts", "Max design points", 4, 1, 10, 1),
-                 numericInput("bound", "Upper bound", 10, 1, NA, 1)
+                 numericInput("bound", "Upper bound", 10, 1, NA, 1),
+                 selectInput("crit", "Design Criterion", c("D"), selected = "D")
                ),
                mainPanel(
                  #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -527,9 +528,10 @@ ODpolyApp <- function(...) {
       # design options
       pts = input$pts
       bound = input$bound
+      crit = input$crit
       
       # find optimal design
-      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree)
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit)
       
       # store in reactive data
       values$OD$design = od$design

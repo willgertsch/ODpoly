@@ -1,6 +1,6 @@
 # objective function factory
 # generates a function for calculating the design criterion based on current solution vector
-obj_function_factory = function(powers, betas, degree = 2) {
+obj_function_factory = function(powers, betas, degree = 2, crit = "D") {
   
   # check input
   if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
@@ -8,6 +8,7 @@ obj_function_factory = function(powers, betas, degree = 2) {
   
   force(powers)
   force(betas)
+  force(crit)
   
   lbeta = length(betas)
   
@@ -67,11 +68,28 @@ obj_function_factory = function(powers, betas, degree = 2) {
       # use information matrix to compute objective
       # using D for now
       # silence warnings
-      obj_value = suppressWarnings(log(det(M)))
+      if (crit == "D") {
+        obj_value = suppressWarnings(log(det(M)))
+      }
+      else if (crit == "A") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") # avoid matrix singularity
+          return(Inf)
+        else {
+          Minv = solve(M)
+          obj_value = -sum(diag(Minv))
+        }
+        
+      }
+      else {
+        obj_value = suppressWarnings(log(det(M)))
+      }
       
       # deal with NAs
       if (is.na(obj_value)) {
-        return(-Inf)
+        if (crit == 'A')
+          return(Inf)
+        else
+          return(-Inf)
       }
       else
         return(obj_value)
@@ -131,11 +149,28 @@ obj_function_factory = function(powers, betas, degree = 2) {
       # use information matrix to compute objective
       # using D for now
       # silence warnings
-      obj_value = suppressWarnings(log(det(M)))
+      if (crit == "D") {
+        obj_value = suppressWarnings(log(det(M)))
+      }
+      else if (crit == "A") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") # avoid matrix singularity
+          return(Inf)
+        else {
+          Minv = solve(M)
+          obj_value = -sum(diag(Minv))
+        }
+        
+      }
+      else {
+        obj_value = suppressWarnings(log(det(M)))
+      }
       
       # deal with NAs
       if (is.na(obj_value)) {
-        return(-Inf)
+        if (crit == 'A')
+          return(Inf)
+        else
+          return(-Inf)
       }
       else
         return(obj_value)

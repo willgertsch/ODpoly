@@ -3,7 +3,7 @@
 # vars: solution vector
 # betas: vector of coefficients
 # powers: vector of powers
-sens = function(z, vars, betas, powers, degree = 2) {
+sens = function(z, vars, betas, powers, degree = 2, crit = "D") {
   
   # switch for different degree polynomials
   if (degree == 2) {
@@ -58,10 +58,20 @@ sens = function(z, vars, betas, powers, degree = 2) {
       y = 1
     }
     else {
-      # compute sensitivity function
       Minv = solve(M)
       b = c(1, z1, z2)
-      y = sigmaz * t(b) %*% Minv %*% b - 3
+      # compute sensitivity function
+      if (crit == "D") {
+        y = sigmaz * t(b) %*% Minv %*% b - 3
+      }
+      else if (crit == "A") {
+        Minv2 = Minv %*% Minv
+        y = sigmaz * t(b) %*% Minv2 %*% b - sum(diag(Minv))
+      }
+      else { # default to D
+        y = sigmaz * t(b) %*% Minv %*% b - 3
+      }
+      
     }
   }
   else if (degree == 3) {
@@ -125,7 +135,17 @@ sens = function(z, vars, betas, powers, degree = 2) {
       # compute sensitivity function
       Minv = solve(M)
       b = c(1, z1, z2, z3)
-      y = sigmaz * t(b) %*% Minv %*% b - 4
+      if (crit == "D") {
+        y = sigmaz * t(b) %*% Minv %*% b - 4
+      }
+      else if (crit == "A") {
+        Minv2 = Minv %*% Minv
+        y = sigmaz * t(b) %*% Minv2 %*% b - sum(diag(Minv))
+      }
+      else { # default to D
+        y = sigmaz * t(b) %*% Minv %*% b - 4
+      }
+      
     }
   }
   else {

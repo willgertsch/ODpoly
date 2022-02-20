@@ -12,10 +12,10 @@
 # bound: upper bound for design interval
 library(metaheuristicOpt)
 library(DEoptim)
-ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2) {
+ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2, crit = 'D') {
   
   # define objective function
-  obj_func = obj_function_factory(powers, betas, degree)
+  obj_func = obj_function_factory(powers, betas, degree, crit)
   
   # separate flow for using RccpDE package
   #cat(file=stderr(), length(alg))
@@ -66,7 +66,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
-  p = plot_sens(xs, sol$result, betas, powers, degree)
+  p = plot_sens(xs, sol$result, betas, powers, degree, crit)
   
   # return
   out = list(design = result, plot = p, value = c(sol$optimumValue))
