@@ -226,7 +226,8 @@ ODpolyApp <- function(...) {
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
-                       Design points and weights are displayed rounded to 3 decimal places")
+                       Design points and weights are displayed rounded to 3 decimal places"),
+               tags$li("A plot of the ch(x) function will also be displayed. If ch(x) = 1 for al x, this indicates a matrix singularity and ch(x) cannot be displayed.")
                
              ),
              
