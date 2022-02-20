@@ -140,3 +140,62 @@ fitted_logistic_fp3 = function(successes, x, powers) {
   
   return(out)
 }
+
+standard_quad= function(successes, x) {
+  
+  x1 = x
+  x2 = x^2
+  mod = glm(cbind(successes, 100 - successes) ~ x1 + x2,
+            family = binomial)
+  # add predicted values to plot
+  # these are the predicted probabilities
+  yhat = predict(mod, type = "response")
+  
+  
+  beta = coef(mod)
+  
+  # return list
+  out = list(
+    yhat = yhat, 
+    p1 = 1,
+    p2 = 2,
+    beta0 = unname(beta[1]),
+    beta1 = unname(beta[2]),
+    beta2 = unname(beta[3]),
+    aic = AIC(mod),
+    bic = BIC(mod)
+  )
+  
+  return(out)
+}
+
+standard_cubic= function(successes, x) {
+  
+  x1 = x
+  x2 = x^2
+  x3 = x^3
+  mod = glm(cbind(successes, 100 - successes) ~ x1 + x2 + x3,
+            family = binomial)
+  # add predicted values to plot
+  # these are the predicted probabilities
+  yhat = predict(mod, type = "response")
+  
+  
+  beta = coef(mod)
+  
+  # return list
+  out = list(
+    yhat = yhat, 
+    p1 = 1,
+    p2 = 2,
+    p3 = 3,
+    beta0 = unname(beta[1]),
+    beta1 = unname(beta[2]),
+    beta2 = unname(beta[3]),
+    beta3 = unname(beta[4]),
+    aic = AIC(mod),
+    bic = BIC(mod)
+  )
+  
+  return(out)
+}

@@ -188,7 +188,7 @@ ODpolyApp <- function(...) {
                sidebarPanel(
                  "Options",
                  numericInput("fp_bound", "Upper bound", 10, 1, NA, 1),
-                 selectInput("fpdegree", "Degree", c(2, 3), selected = 2)
+                 selectInput("fpdegree", "Degree", c(2, 3, "Standard quadratic", "Standard cubic"), selected = 2)
                  
                ),
                mainPanel(
@@ -368,6 +368,12 @@ ODpolyApp <- function(...) {
       else if (input$fpdegree == 3) {
         out = fitted_logistic_fp3(successes, model_data$x, frac.powers)
       }
+      else if (input$fpdegree == "Standard quadratic") {
+        out = standard_quad(successes, model_data$x)
+      }
+      else if (input$fpdegree == "Standard cubic") {
+        out = standard_cubic(successes, model_data$x)
+      }
       
       
       # save to reactive object
@@ -384,7 +390,7 @@ ODpolyApp <- function(...) {
       values$bic = out$bic
       
       # save degree values
-      if (input$fpdegree == 3) {
+      if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
         values$beta3 = out$beta3
         values$p3  = out$p3
       }
@@ -402,11 +408,11 @@ ODpolyApp <- function(...) {
       updateNumericInput(session, "bound", value = values$bound)
       
       # set cubic options to NA if quadratic model is fit
-      if (input$fpdegree == 2) {
+      if (input$fpdegree == 2 | input$fpdegree == "Standard quadratic") {
         updateNumericInput(session, "p3", value = NA)
         updateNumericInput(session, "b3", value = NA)
       }
-      else if (input$fpdegree == 3) {
+      else if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
         updateNumericInput(session, "p3", value = values$p3)
         updateNumericInput(session, "b3", value = values$beta3)
       }
@@ -421,7 +427,7 @@ ODpolyApp <- function(...) {
         # print("No model")
         cat("No Model\n")
       }
-      else if (input$fpdegree == 2) {
+      else if (input$fpdegree == 2 | input$fpdegree == "Standard quadratic") {
 
         cat("p1: ", values$p1, "\n",
             "p2: ", values$p2, "\n",
@@ -433,7 +439,7 @@ ODpolyApp <- function(...) {
             sep = ""
             )
       }
-      else if (input$fpdegree == 3) {
+      else if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
         cat("p1: ", values$p1, "\n",
             "p2: ", values$p2, "\n",
             "p3: ", values$p3, "\n",
