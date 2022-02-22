@@ -1,5 +1,5 @@
 # check_EDp.R
-# checks all possible solutions to EDp equation and returns the best
+# checks all possible solutions to EDp equation and returns the feasible value and which solution was used
 # if no feasible value, return NA
 # p: desired ED percentile
 # beta: coefficients
@@ -31,12 +31,22 @@ check_EDp = function(p, beta, powers, bound) {
       m = min(x1, x2) # choose lowest dose
       if (m == Inf)
         return(NA)
-      else
-        return(m)
+      else {
+        if (m == x1) {
+          sol = 1
+        }
+        else if (m == x2)
+          sol = 2
+        else
+          sol = NA
+        
+        return(list(m = m, sol = sol))
+        
+      }
     }
   }
   else if (identical(powers, c(1, 2, 3))) { # cubic
-    
+    stop("Work in progress")
   }
   else {
     stop("Polynomial not supported")

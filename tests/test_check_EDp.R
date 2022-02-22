@@ -52,3 +52,14 @@ powers = c(1, 2)
 bound = 3
 check_EDp(p, beta, powers, bound)
 
+# checking different solutions
+# (x-5)(x-3) = 0 vs (x-5)(x+3)
+# x^2 - 8x + 15 vs x^2 - 2x - 15
+p = 0.5
+beta1 = c(15, -8, 1)
+beta2 = c(-15, -2, 1)
+powers = c(1, 2)
+bound = 10
+check_EDp(p, beta1, powers, bound)
+check_EDp(p, beta2, powers, bound)
+
