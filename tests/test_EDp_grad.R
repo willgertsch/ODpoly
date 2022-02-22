@@ -19,4 +19,4 @@ EDp_grad(beta, powers, solution = 1)
 beta = c(-2.492062, 0.004352718, -8.517725e-07)
 bound = 3000
 check_EDp(p, beta, powers, bound) # around 600
-EDp_grad(beta, powers, solution = 1)
+test = EDp_grad(beta, powers, solution = 1)

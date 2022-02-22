@@ -246,7 +246,7 @@ ODpolyApp <- function(...) {
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                  numericInput("pts", "Max design points", 4, 1, 10, 1),
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
-                 selectInput("crit", "Design Criterion", c("D"), selected = "D")
+                 selectInput("crit", "Design Criterion", c("D", "ED50"), selected = "D")
                ),
                mainPanel(
                  #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),

@@ -1,6 +1,6 @@
 # objective function factory
 # generates a function for calculating the design criterion based on current solution vector
-obj_function_factory = function(powers, betas, degree = 2, crit = "D") {
+obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
   
   # check input
   if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
@@ -26,6 +26,19 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D") {
       print("Incorrect number of coefs or powers")
       return(0)
     }
+    
+    # if c-optimal design, compute gradient
+    # checking for standard quadratic is within check_EDp
+    if (crit == "ED50") {
+      check = check_EDp(p = 0.5, betas, powers, bound)
+      if (length(check) == 1) {
+        stop("No X value for ED50 found.")
+      }
+      else {
+        dg = EDp_grad(betas, powers, check$sol)
+      }
+    }
+    
     
     obj_func = function(vars) {
       
@@ -66,31 +79,33 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D") {
       }
       
       # use information matrix to compute objective
-      # using D for now
       # silence warnings
       if (crit == "D") {
         obj_value = suppressWarnings(log(det(M)))
       }
       else if (crit == "A") {
         if (class(try(solve(M),silent=T))[1]!="matrix") # avoid matrix singularity
-          return(Inf)
+          return(Inf) # think this should also be changed to -Inf
         else {
           Minv = solve(M)
           obj_value = -sum(diag(Minv))
         }
         
       }
+      else if (crit == "ED50") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") {
+          return(-Inf)
+        }
+        Minv = solve(M)
+        obj_value = - t(dg) %*% Minv %*% dg # get as close to zero as possible
+      }
       else {
         obj_value = suppressWarnings(log(det(M)))
       }
       
       # deal with NAs
-      if (is.na(obj_value)) {
-        if (crit == 'A')
-          return(Inf)
-        else
-          return(-Inf)
-      }
+      if (is.na(obj_value)) 
+        return(-Inf)
       else
         return(obj_value)
     }

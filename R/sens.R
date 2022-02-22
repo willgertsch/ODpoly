@@ -3,7 +3,7 @@
 # vars: solution vector
 # betas: vector of coefficients
 # powers: vector of powers
-sens = function(z, vars, betas, powers, degree = 2, crit = "D") {
+sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound) {
   
   # switch for different degree polynomials
   if (degree == 2) {
@@ -14,6 +14,17 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D") {
     s = sum(w, na.rm = T) # need to get rid of NAs here
     if (s < 0 | s > 1) # constraint implementation
       return(-Inf)
+    
+    # compute gradient if c-optimal
+    if (crit == "ED50") {
+      check = check_EDp(p = 0.5, betas, powers, bound)
+      if (length(check) == 1) {
+        stop("No X value for ED50 found.")
+      }
+      else {
+        dg = EDp_grad(betas, powers, check$sol)
+      }
+    }
     
     # define a powers vector that includes 0
     zpowers = c(0, powers)
@@ -67,6 +78,10 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D") {
       else if (crit == "A") {
         Minv2 = Minv %*% Minv
         y = sigmaz * t(b) %*% Minv2 %*% b - sum(diag(Minv))
+      }
+      else if (crit == "ED50") {
+        # double check this calculation
+        y = (sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2 - t(dg) %*% Minv %*% dg
       }
       else { # default to D
         y = sigmaz * t(b) %*% Minv %*% b - 3
