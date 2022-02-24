@@ -227,7 +227,7 @@ ODpolyApp <- function(...) {
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
-               tags$li("A plot of the ch(x) function will also be displayed. If ch(x) = 1 for al x, this indicates a matrix singularity and ch(x) cannot be displayed.")
+               tags$li("A plot of the ch(x) function will also be displayed. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed.")
                
              ),
              
@@ -309,8 +309,10 @@ ODpolyApp <- function(...) {
         
       
       # if there non NA values for the predicted values, plot these as well
-      if (sum(!is.na(values$DT$yhat)) > 0)
+      if (sum(!is.na(values$DT$yhat)) > 0) {
         ggp = ggp + geom_line(aes(x=x, y=yhat))
+      }
+        
       
       # display plot
       ggp
@@ -570,68 +572,70 @@ ODpolyApp <- function(...) {
         
         l = length(raw)
 
-        # purge points with zero weight
-        if (sum(raw[(l/2 + 1):l]==0) > 0) {
-          x_indices = which(raw[(l/2 + 1):l]==0)
-          w_indices = x_indices + l/2
-          raw = raw[,-c(x_indices, w_indices)]
-          l = length(raw)
-          cat("Purged points with weight 0\n")
-        }
-        
-
-        # combine weights of identical points
-        # sort as well
-        xs = raw[1:(l/2)]
-        ws = raw[(l/2+1):l]
-        if (length(unique(xs)) != length(xs)) {
-          dups = xs[duplicated(xs)] # keep track of dups
-          for (d in dups) { # iterate through and combine weights
-            indices = xs == d
-            new_w = sum(ws[indices]) # add w's for a specific duplicate
-            ws[indices] = new_w # update w's; will drop later
-          }
-          xs = unique(xs) # remove duplicates
-          ws = unique(ws)
-          
-          raw = c(xs, ws)
-          l = length(raw)
-          #print("Combined identical points")
-          cat("Combined identical points\n")
-        }
-        
-        
-        
-        # labeling
-        # probably a better way to do this
-        # labs is a function => call it labbs
-        labbs = character(l)
-        for (i in 1:(l/2)) {
-          labbs[i] = paste("x", toString(i), sep = "")
-        }
-        for (i in (l/2 + 1):l) {
-          labbs[i] = paste("w", toString(i-l/2), sep = "")
-        }
-        
-        # magic
-        raw = c(raw)
-        
-        # sort by x's
-        raw_x = raw[1:(l/2)]
-        raw_w = raw[(l/2 + 1):l]
-        r = rank(raw_x)
-        raw_x = raw_x[r]
-        raw_w = raw_w[r]
-        raw = c(raw_x, raw_w)
-
-        names(raw) = labbs
-        
-        out = raw
+        # # purge points with zero weight
+        # # out to 3 decimal points to match output
+        # if (round(sum(raw[(l/2 + 1):l], 3)==0) > 0) {
+        #   x_indices = which(round(raw[(l/2 + 1):l], 3)==0)
+        #   w_indices = x_indices + l/2
+        #   raw = raw[,-c(x_indices, w_indices)]
+        #   l = length(raw)
+        #   cat("Purged points with weight 0\n")
+        # }
+        # 
+        # 
+        # # combine weights of identical points
+        # # sort as well
+        # xs = raw[1:(l/2)]
+        # ws = raw[(l/2+1):l]
+        # if (length(unique(xs)) != length(xs)) {
+        #   dups = xs[duplicated(xs)] # keep track of dups
+        #   for (d in dups) { # iterate through and combine weights
+        #     indices = xs == d
+        #     new_w = sum(ws[indices]) # add w's for a specific duplicate
+        #     ws[indices] = new_w # update w's; will drop later
+        #   }
+        #   xs = unique(xs) # remove duplicates
+        #   ws = unique(ws)
+        #   
+        #   raw = c(xs, ws)
+        #   l = length(raw)
+        #   #print("Combined identical points")
+        #   cat("Combined identical points\n")
+        # }
+        # 
+        # 
+        # 
+        # # labeling
+        # # probably a better way to do this
+        # # labs is a function => call it labbs
+        # labbs = character(l)
+        # for (i in 1:(l/2)) {
+        #   labbs[i] = paste("x", toString(i), sep = "")
+        # }
+        # for (i in (l/2 + 1):l) {
+        #   labbs[i] = paste("w", toString(i-l/2), sep = "")
+        # }
+        # 
+        # # magic
+        # raw = c(raw)
+        # 
+        # # sort by x's
+        # raw_x = raw[1:(l/2)]
+        # raw_w = raw[(l/2 + 1):l]
+        # r = rank(raw_x)
+        # raw_x = raw_x[r]
+        # raw_w = raw_w[r]
+        # raw = c(raw_x, raw_w)
+        # 
+        # names(raw) = labbs
+        # 
+        # out = raw
         #raw
+        labbs = names(raw)
         cat(labbs[1:(l/2)], "\n", sep = "    ")
-        cat(round(out[1:(l/2)], 3), "\n")
+        cat(round(raw[1:(l/2)], 3), "\n")
         cat(labbs[(l/2 + 1):l], "\n", sep = "    ")
-        cat(round(out[(l/2 + 1):l], 3))
+        cat(round(raw[(l/2 + 1):l], 3))
       }
       
     })

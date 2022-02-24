@@ -62,12 +62,71 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   # save output
   result = sol$result
   
+  # combine design points
+  raw = result
+  l = length(raw)
+  
+  # purge points with zero weight
+  # out to 3 decimal points to match output
+  if (sum(round(raw[(l/2 + 1):l], 3)==0) > 0) {
+    x_indices = which(round(raw[(l/2 + 1):l], 3)==0)
+    w_indices = x_indices + l/2
+    raw = raw[,-c(x_indices, w_indices)]
+    l = length(raw)
+  }
+  
+  # combine weights of identical points
+  # sort as well
+  xs = raw[1:(l/2)]
+  ws = raw[(l/2+1):l]
+  if (length(unique(xs)) != length(xs)) {
+    dups = xs[duplicated(xs)] # keep track of dups
+    for (d in dups) { # iterate through and combine weights
+      indices = xs == d
+      new_w = sum(ws[indices]) # add w's for a specific duplicate
+      ws[indices] = new_w # update w's; will drop later
+    }
+    xs = unique(xs) # remove duplicates
+    ws = unique(ws)
+    
+    raw = c(xs, ws)
+    l = length(raw)
+  }
+  
+  # labeling
+  # probably a better way to do this
+  # labs is a function => call it labbs
+  labbs = character(l)
+  for (i in 1:(l/2)) {
+    labbs[i] = paste("x", toString(i), sep = "")
+  }
+  for (i in (l/2 + 1):l) {
+    labbs[i] = paste("w", toString(i-l/2), sep = "")
+  }
+  
+  # magic
+  raw = c(raw)
+  
+  # sort by x's
+  raw_x = raw[1:(l/2)]
+  raw_w = raw[(l/2 + 1):l]
+  r = rank(raw_x)
+  raw_x = raw_x[r]
+  raw_w = raw_w[r]
+  raw = c(raw_x, raw_w)
+  
+  names(raw) = labbs
+  
+  out = raw
+
+  
+  
   
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
-  p = plot_sens(xs, sol$result, betas, powers, degree, crit, bound)
+  p = plot_sens(xs, out, betas, powers, degree, crit, bound)
   
   # return
-  out = list(design = result, plot = p, value = c(sol$optimumValue))
+  out = list(design = out, plot = p, value = c(sol$optimumValue))
 }
