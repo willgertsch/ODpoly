@@ -157,7 +157,7 @@ ODpolyApp <- function(...) {
     )
     
                 ),
-    tabPanel("Fractional Polynomials",
+    tabPanel("Polynomial Fitting",
              
              titlePanel(
                "Fractional Polynomials on Probability Scale"
@@ -179,7 +179,8 @@ ODpolyApp <- function(...) {
                tags$li("Click on plot to generate data for the probability of response at each X value. 
                        It is also possible to upload a .csv file. This file should have the columns y and x with probabilities and dose levels respectively."),
                tags$li("Click the \"Fit\" button to fit a fractional polynomial model to the data. 
-                       All fractional polynomials with powers from the set {2, -1, -1/2, 0, 1/2, 1, 2, 3} will be fit to the data and the model with the lowest AIC will be returned"
+                       All fractional polynomials with powers from the set {2, -1, -1/2, 0, 1/2, 1, 2, 3} will be fit to the data and the model with the lowest AIC will be returned.
+                       If either of the standard options are selected, a standard quadratic or cubic polynomial will be fit."
                        ),
                tags$li("If desired, clicking \"Copy model to design input\" will transfer the resulting model to the design tab to find the optimal design.")
                ),
@@ -224,6 +225,7 @@ ODpolyApp <- function(...) {
                tags$li("Select the desired upper bound for the design. This should be set based on the context of the problem. 
                        For example, in clinical trials the upper bound could be the maximum safe dosage.
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
+               tags$li("Choose a design criterion. Note that ED50 designs are currently only supported for standard polynomials."),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
