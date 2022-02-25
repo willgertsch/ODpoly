@@ -569,7 +569,13 @@ ODpolyApp <- function(...) {
       else { # all other cases
         
         # display objective value
-        cat("log(Det(M)) = ", obj_val, "\n", sep = "")
+        if (input$crit == "D") {
+          cat("log(Det(M)) = ", obj_val, "\n", sep = "")
+        }
+        else if (input$crit == "ED50") {
+          cat("[ED50']^t M^{-1} ED50' = ", -obj_val, "\n", sep = "")
+        }
+        
         #print(obj_val)
         
         l = length(raw)
