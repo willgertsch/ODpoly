@@ -9,6 +9,14 @@ bt = function(X, p) {
     return(suppressWarnings(log(X)))
 } 
 
+# derivative of Box-Tidwell
+dbt = function(X, p) {
+  if (p != 0)
+    return(p * X^(p-1))
+  else if (p == 0)
+    return(1/X)
+} 
+
 # H function
 # j: index
 H = function(j, X, powers) {
@@ -18,6 +26,17 @@ H = function(j, X, powers) {
     return(bt(X, powers[j]))
   else if (powers[j] == powers[j-1])
     return(suppressWarnings(log(X)) * H(j-1, X, powers))
+}
+
+# derivative of the H function
+dH = function(j, X, powers) {
+  if (j == 1) # base case
+    return(0)
+  if (powers[j] != powers[j-1])
+    return(dbt(X, powers[j]))
+  else if (powers[j] == powers[j-1])
+    return(suppressWarnings(log(X)) * dH(j-1, X, powers) + 
+             H(j-1, X, powers)/X)
 }
 
 # calculates the fractional polynomial for given X, coefficients, powers
