@@ -48,7 +48,7 @@ grad_EDp = function(beta, powers, bound, p) {
     grad = NA
   else {
     
-    if (length(beta == 2)) {
+    if (length(beta) == 3) {
       Q = beta[2] * dH(2, EDp, zpowers) + beta[3] * dH(3, EDp, zpowers)
       
       # gradient calculation
@@ -57,7 +57,7 @@ grad_EDp = function(beta, powers, bound, p) {
       grad[2] = -H(2, EDp, zpowers)/Q
       grad[3] = -H(3, EDp, zpowers)/Q
     }
-    else if (length(beta == 3)) {
+    else if (length(beta) == 4) {
       Q = beta[2] * dH(2, EDp, zpowers) + beta[3] * dH(3, EDp, zpowers) +
         beta[4] * dH(4, EDp, zpowers)
       

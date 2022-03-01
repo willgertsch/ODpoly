@@ -15,6 +15,25 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
   # define a powers vector that includes 0
   zpowers = c(0, powers)
   
+  # if c-optimal design, compute gradient
+  if (crit == "ED50") {
+    # check = check_EDp(p = 0.5, betas, powers, bound)
+    # if (length(check) == 1) {
+    #   stop("No X value for ED50 found.")
+    # }
+    # else {
+    #   dg = EDp_grad(betas, powers, check$sol)
+    # }
+    ED50_grad = grad_EDp(betas, powers, bound, p = 0.5)
+    if (is.na(ED50_grad$EDp))
+      stop("No X value for ED50 found.")
+    else {
+      dg = ED50_grad$grad
+      #print("Calculated gradient")
+      #print(dg)
+    }
+  }
+  
   # construct objective function
   # only input should be design on that point
   # vars is a list with the current x values and weights
@@ -25,18 +44,6 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
     if (length(betas) != 3 | length(zpowers) != 3) {
       print("Incorrect number of coefs or powers")
       return(0)
-    }
-    
-    # if c-optimal design, compute gradient
-    # checking for standard quadratic is within check_EDp
-    if (crit == "ED50") {
-      check = check_EDp(p = 0.5, betas, powers, bound)
-      if (length(check) == 1) {
-        stop("No X value for ED50 found.")
-      }
-      else {
-        dg = EDp_grad(betas, powers, check$sol)
-      }
     }
     
     
@@ -175,6 +182,13 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
           obj_value = -sum(diag(Minv))
         }
         
+      }
+      else if (crit == "ED50") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") {
+          return(-Inf)
+        }
+        Minv = solve(M)
+        obj_value = - t(dg) %*% Minv %*% dg # get as close to zero as possible
       }
       else {
         obj_value = suppressWarnings(log(det(M)))
