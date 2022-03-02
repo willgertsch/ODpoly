@@ -574,6 +574,19 @@ ODpolyApp <- function(...) {
         }
         else if (input$crit == "ED50") {
           cat("[ED50']^t M^{-1} ED50' = ", -obj_val, "\n", sep = "")
+          # display value for ED50
+          if (is.na(input$p3) | is.na(input$b3)) {
+            powers = as.numeric(c(input$p1, input$p2))
+            beta = c(input$b0, input$b1, input$b2)
+          }
+          else {
+            powers = as.numeric(c(input$p1, input$p2, input$p3))
+            beta = c(input$b0, input$b1, input$b2, input$b3)
+          }
+          
+          ED50 = grad_EDp(beta, powers, input$bound, p = 0.5)$EDp
+          cat("ED50 = ", ED50, "\n", sep = "")
+          
         }
         
         #print(obj_val)
