@@ -17,20 +17,11 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
   
   # if c-optimal design, compute gradient
   if (crit == "ED50") {
-    # check = check_EDp(p = 0.5, betas, powers, bound)
-    # if (length(check) == 1) {
-    #   stop("No X value for ED50 found.")
-    # }
-    # else {
-    #   dg = EDp_grad(betas, powers, check$sol)
-    # }
     ED50_grad = grad_EDp(betas, powers, bound, p = 0.5)
     if (is.na(ED50_grad$EDp))
       stop("No X value for ED50 found.")
     else {
       dg = ED50_grad$grad
-      #print("Calculated gradient")
-      #print(dg)
     }
   }
   

@@ -119,9 +119,6 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2
   
   out = raw
 
-  
-  
-  
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
