@@ -12,7 +12,8 @@
 # bound: upper bound for design interval
 library(metaheuristicOpt)
 library(DEoptim)
-ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, degree = 2, crit = 'D') {
+ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, 
+                  degree = 2, crit = 'D', alpha) {
   
   # define objective function
   obj_func = obj_function_factory(powers, betas, degree, crit, bound)
