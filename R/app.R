@@ -595,7 +595,7 @@ ODpolyApp <- function(...) {
             beta = c(input$b0, input$b1, input$b2, input$b3)
           }
           
-          ED50 = grad_EDp(beta, powers, input$bound, p = 0.5)$EDp
+          ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
           cat("EDp = ", ED50, "\n", sep = "")
           
         }
