@@ -1,6 +1,6 @@
 # objective function factory
 # generates a function for calculating the design criterion based on current solution vector
-obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p) {
+obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p, lam) {
   
   # check input
   if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
@@ -9,6 +9,7 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p)
   force(powers)
   force(betas)
   force(crit)
+  force(lam)
   
   lbeta = length(betas)
   
@@ -16,7 +17,7 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p)
   zpowers = c(0, powers)
   
   # if c-optimal design, compute gradient
-  if (crit == "EDp") {
+  if (crit == "EDp" | crit == "Dual") {
     EDp_grad = grad_EDp(betas, powers, bound, p = p)
     if (is.na(EDp_grad$EDp))
       stop("No X value for EDp found.")
@@ -96,6 +97,15 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p)
         }
         Minv = solve(M)
         obj_value = - t(dg) %*% Minv %*% dg # get as close to zero as possible
+      }
+      else if (crit == "Dual") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") {
+          return(-Inf)
+        }
+        Minv = solve(M)
+        Dval = suppressWarnings(log(det(M)))
+        Cval = - suppressWarnings(log(t(dg) %*% Minv %*% dg))
+        obj_value = lam * Cval + (1 - lam)/3 * Dval
       }
       else {
         obj_value = suppressWarnings(log(det(M)))
@@ -180,6 +190,15 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p)
         }
         Minv = solve(M)
         obj_value = - t(dg) %*% Minv %*% dg # get as close to zero as possible
+      }
+      else if (crit == "Dual") {
+        if (class(try(solve(M),silent=T))[1]!="matrix") {
+          return(-Inf)
+        }
+        Minv = solve(M)
+        Dval = suppressWarnings(log(det(M)))
+        Cval = - suppressWarnings(log(t(dg) %*% Minv %*% dg))
+        obj_value = lam * Cval + (1 - lam)/4 * Dval
       }
       else {
         obj_value = suppressWarnings(log(det(M)))

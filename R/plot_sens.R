@@ -4,10 +4,10 @@
 # betas: vector of coefficients
 # powers: vector of powers
 library(ggplot2)
-plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, p) {
+plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, p, lam) {
   
   # if c-optimal design, compute gradient
-  if (crit == "EDp") {
+  if (crit == "EDp" | crit == "Dual") {
     EDp_grad = grad_EDp(betas, powers, bound, p = p)
     if (is.na(EDp_grad$EDp))
       stop("No X value for ED50 found.")
@@ -17,7 +17,7 @@ plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, 
   }
   
   # compute sens function
-  yvals = sapply(xvals, sens, vars, betas, powers, degree, crit, bound, dg)
+  yvals = sapply(xvals, sens, vars, betas, powers, degree, crit, bound, dg, lam)
   
   # old base R plots
   # plot(yvals ~ xvals, type ="l")

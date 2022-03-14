@@ -248,8 +248,9 @@ ODpolyApp <- function(...) {
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                  numericInput("pts", "Max design points", 4, 1, 10, 1),
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
-                 selectInput("crit", "Design Criterion", c("D", "EDp"), selected = "D"),
-                 numericInput("p", "p", 0.5, 0.01, .99, 0.01)
+                 selectInput("crit", "Design Criterion", c("D", "EDp", "Dual"), selected = "D"),
+                 numericInput("p", "ED Percentile", 0.5, 0.01, .99, 0.01),
+                 numericInput("lam", "Lambda", 0.5, 0, 1, 0.01)
                ),
                mainPanel(
                  #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -541,9 +542,10 @@ ODpolyApp <- function(...) {
       crit = input$crit
       alpha = input$alpha
       p = input$p
+      lam = input$lam
       
       # to avoid crashing the app, need to check if EDp exists
-      if (crit == "EDp") {
+      if (crit == "EDp" | crit == "Dual") {
         EDp_grad = grad_EDp(betas, powers, bound, p = p)
         
         if (is.na(EDp_grad$EDp)) {
@@ -555,7 +557,7 @@ ODpolyApp <- function(...) {
         # else continue
       }
       # find optimal design
-      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p)
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p, lam)
       
       # store in reactive data
       values$OD$msg = ""
@@ -598,6 +600,20 @@ ODpolyApp <- function(...) {
           ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
           cat("EDp = ", ED50, "\n", sep = "")
           
+        } else if (input$crit == "Dual") {
+          cat("lambda*Cobj + (1-lambda)*Dobj = ", -obj_val, "\n", sep = "")
+          # display value for EDp
+          if (is.na(input$p3) | is.na(input$b3)) {
+            powers = as.numeric(c(input$p1, input$p2))
+            beta = c(input$b0, input$b1, input$b2)
+          }
+          else {
+            powers = as.numeric(c(input$p1, input$p2, input$p3))
+            beta = c(input$b0, input$b1, input$b2, input$b3)
+          }
+          
+          ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
+          cat("EDp = ", ED50, "\n", sep = "")
         }
         
         l = length(raw)

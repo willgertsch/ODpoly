@@ -14,10 +14,10 @@
 library(metaheuristicOpt)
 library(DEoptim)
 ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, 
-                  degree = 2, crit = 'D', p) {
+                  degree = 2, crit = 'D', p, lam) {
   
   # define objective function
-  obj_func = obj_function_factory(powers, betas, degree, crit, bound, p)
+  obj_func = obj_function_factory(powers, betas, degree, crit, bound, p, lam)
   
   # separate flow for using RccpDE package
   #cat(file=stderr(), length(alg))
@@ -124,7 +124,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
-  p = plot_sens(xs, out, betas, powers, degree, crit, bound, p)
+  p = plot_sens(xs, out, betas, powers, degree, crit, bound, p, lam)
   
   # return
   out = list(design = out, plot = p, value = c(sol$optimumValue))

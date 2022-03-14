@@ -4,7 +4,7 @@
 # betas: vector of coefficients
 # powers: vector of powers
 # dg: computed gradient for EDp
-sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg) {
+sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg, lam) {
   
   # switch for different degree polynomials
   if (degree == 2) {
@@ -71,6 +71,10 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg) {
       }
       else if (crit == "EDp") {
         y = (sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2 - t(dg) %*% Minv %*% dg
+      }
+      else if (crit == "Dual") {
+        y = (1-lam)/3 * sigmaz * t(b) %*% Minv %*% b + 
+          lam*(sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2/(t(dg) %*% Minv %*% dg) - 1
       }
       else { # default to D
         y = sigmaz * t(b) %*% Minv %*% b - 3
@@ -148,6 +152,10 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg) {
       }
       else if (crit == "EDp") {
         y = (sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2 - t(dg) %*% Minv %*% dg
+      }
+      else if (crit == "Dual") {
+        y = (1-lam)/4 * sigmaz * t(b) %*% Minv %*% b + 
+          lam*(sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2/(t(dg) %*% Minv %*% dg) - 1
       }
       else { # default to D
         y = sigmaz * t(b) %*% Minv %*% b - 4
