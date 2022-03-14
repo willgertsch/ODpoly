@@ -225,7 +225,7 @@ ODpolyApp <- function(...) {
                tags$li("Select the desired upper bound for the design. This should be set based on the context of the problem. 
                        For example, in clinical trials the upper bound could be the maximum safe dosage.
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
-               tags$li("Choose a design criterion. Note that ED50 designs are currently only supported for standard polynomials."),
+               tags$li("Choose a design criterion. Note that for EDp designs, the percentile must exist."),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
@@ -248,8 +248,8 @@ ODpolyApp <- function(...) {
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                  numericInput("pts", "Max design points", 4, 1, 10, 1),
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
-                 selectInput("crit", "Design Criterion", c("D", "ED50", "D+ED50"), selected = "D"),
-                 numericInput("alpha", "alpha", 0.5, 0, 1, 0.1)
+                 selectInput("crit", "Design Criterion", c("D", "EDp"), selected = "D"),
+                 numericInput("p", "p", 0.5, 0.01, .99, 0.01)
                ),
                mainPanel(
                  #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -491,7 +491,8 @@ ODpolyApp <- function(...) {
     # set up reactive data structure
     values$OD <- list(
       design = numeric(),
-      plot = ggplot()
+      plot = ggplot(),
+      msg = character()
     )
     
     output$sens_plot = renderPlot({
@@ -539,16 +540,28 @@ ODpolyApp <- function(...) {
       bound = input$bound
       crit = input$crit
       alpha = input$alpha
+      p = input$p
       
+      # to avoid crashing the app, need to check if EDp exists
+      if (crit == "EDp") {
+        EDp_grad = grad_EDp(betas, powers, bound, p = p)
+        
+        if (is.na(EDp_grad$EDp)) {
+          # do nothing
+          values$OD$msg = "No X value found for EDp."
+          values$OD$plot = ggplot()
+          return()
+        }
+        # else continue
+      }
       # find optimal design
-      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, alpha)
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p)
       
       # store in reactive data
+      values$OD$msg = ""
       values$OD$design = od$design
       values$OD$plot = od$plot
       values$OD$val = od$value
-      
-      
     })
     
     # update design output
@@ -561,15 +574,18 @@ ODpolyApp <- function(...) {
       if (length(raw) == 0) {
         cat("No design") 
       }
+      else if (values$OD$msg != "") {
+        cat("No X value for EDp.")
+      }
       else { # all other cases
         
         # display objective value
         if (input$crit == "D") {
           cat("log(Det(M)) = ", obj_val, "\n", sep = "")
         }
-        else if (input$crit == "ED50") {
-          cat("[ED50']^t M^{-1} ED50' = ", -obj_val, "\n", sep = "")
-          # display value for ED50
+        else if (input$crit == "EDp") {
+          cat("[EDp']^t M^{-1} EDp' = ", -obj_val, "\n", sep = "")
+          # display value for EDp
           if (is.na(input$p3) | is.na(input$b3)) {
             powers = as.numeric(c(input$p1, input$p2))
             beta = c(input$b0, input$b1, input$b2)
@@ -580,7 +596,7 @@ ODpolyApp <- function(...) {
           }
           
           ED50 = grad_EDp(beta, powers, input$bound, p = 0.5)$EDp
-          cat("ED50 = ", ED50, "\n", sep = "")
+          cat("EDp = ", ED50, "\n", sep = "")
           
         }
         

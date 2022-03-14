@@ -4,15 +4,15 @@
 # betas: vector of coefficients
 # powers: vector of powers
 library(ggplot2)
-plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound) {
+plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, p) {
   
   # if c-optimal design, compute gradient
-  if (crit == "ED50") {
-    ED50_grad = grad_EDp(betas, powers, bound, p = 0.5)
-    if (is.na(ED50_grad$EDp))
+  if (crit == "EDp") {
+    EDp_grad = grad_EDp(betas, powers, bound, p = p)
+    if (is.na(EDp_grad$EDp))
       stop("No X value for ED50 found.")
     else {
-      dg = ED50_grad$grad
+      dg = EDp_grad$grad
     }
   }
   

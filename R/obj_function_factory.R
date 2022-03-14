@@ -1,6 +1,6 @@
 # objective function factory
 # generates a function for calculating the design criterion based on current solution vector
-obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
+obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p) {
   
   # check input
   if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
@@ -16,12 +16,12 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
   zpowers = c(0, powers)
   
   # if c-optimal design, compute gradient
-  if (crit == "ED50") {
-    ED50_grad = grad_EDp(betas, powers, bound, p = 0.5)
-    if (is.na(ED50_grad$EDp))
-      stop("No X value for ED50 found.")
+  if (crit == "EDp") {
+    EDp_grad = grad_EDp(betas, powers, bound, p = p)
+    if (is.na(EDp_grad$EDp))
+      stop("No X value for EDp found.")
     else {
-      dg = ED50_grad$grad
+      dg = EDp_grad$grad
     }
   }
   
@@ -90,7 +90,7 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
         }
         
       }
-      else if (crit == "ED50") {
+      else if (crit == "EDp") {
         if (class(try(solve(M),silent=T))[1]!="matrix") {
           return(-Inf)
         }
@@ -174,7 +174,7 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound) {
         }
         
       }
-      else if (crit == "ED50") {
+      else if (crit == "EDp") {
         if (class(try(solve(M),silent=T))[1]!="matrix") {
           return(-Inf)
         }

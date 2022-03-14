@@ -10,13 +10,14 @@
 # swarm: size of swarm
 # pts: number of design points
 # bound: upper bound for design interval
+# percentile for EDp designs
 library(metaheuristicOpt)
 library(DEoptim)
 ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, 
-                  degree = 2, crit = 'D', alpha) {
+                  degree = 2, crit = 'D', p) {
   
   # define objective function
-  obj_func = obj_function_factory(powers, betas, degree, crit, bound)
+  obj_func = obj_function_factory(powers, betas, degree, crit, bound, p)
   
   # separate flow for using RccpDE package
   #cat(file=stderr(), length(alg))
@@ -123,7 +124,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
-  p = plot_sens(xs, out, betas, powers, degree, crit, bound)
+  p = plot_sens(xs, out, betas, powers, degree, crit, bound, p)
   
   # return
   out = list(design = out, plot = p, value = c(sol$optimumValue))

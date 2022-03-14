@@ -69,8 +69,7 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg) {
         Minv2 = Minv %*% Minv
         y = sigmaz * t(b) %*% Minv2 %*% b - sum(diag(Minv))
       }
-      else if (crit == "ED50") {
-        # double check this calculation
+      else if (crit == "EDp") {
         y = (sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2 - t(dg) %*% Minv %*% dg
       }
       else { # default to D
@@ -147,8 +146,7 @@ sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg) {
         Minv2 = Minv %*% Minv
         y = sigmaz * t(b) %*% Minv2 %*% b - sum(diag(Minv))
       }
-      else if (crit == "ED50") {
-        # double check this calculation
+      else if (crit == "EDp") {
         y = (sqrt(sigmaz) * t(b) %*% Minv %*% dg)^2 - t(dg) %*% Minv %*% dg
       }
       else { # default to D
