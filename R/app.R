@@ -576,6 +576,7 @@ ODpolyApp <- function(...) {
       raw = values$OD$design
       # crit = input$crit
       crit = "Dual"
+      p = input$p
       
       # case if algorithm hasn't run
       if (length(raw) == 0) {
@@ -616,8 +617,7 @@ ODpolyApp <- function(...) {
             powers = as.numeric(c(input$p1, input$p2, input$p3))
             beta = c(input$b0, input$b1, input$b2, input$b3)
           }
-          
-          ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
+          ED50 = grad_EDp(beta, powers, input$bound, p)$EDp
           cat("EDp = ", ED50, "\n", sep = "")
         }
         

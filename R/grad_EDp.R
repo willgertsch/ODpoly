@@ -6,6 +6,7 @@ grad_EDp = function(beta, powers, bound, p) {
   
   force(powers)
   force(beta)
+  force(p)
   
   
   # find EDp

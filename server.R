@@ -19,6 +19,7 @@ server <- function(input, output, session) {
   # thanks to this person: http://www.ostack.cn/?qa=733734/
   ## 1. set up reactive dataframe
   values <- reactiveValues()
+  values$upload_state = NULL # flag for managing file uploads
   values$DT <- data.frame(x = numeric(),
                           y = numeric(),
                           yhat = numeric()
@@ -29,6 +30,16 @@ server <- function(input, output, session) {
   ## 2. Create a plot
   # x lower bound tries to be reasonably close to 0
   output$plot1 = renderPlot({
+    
+    # update data frame if there is user imported ata
+    file_input()
+    # update upper bound based on data
+    if (length(values$DT$x > 0)) { # only correct if there is data
+      if (input$fp_bound < max(values$DT$x)) {
+        updateNumericInput(session, "fp_bound", value = max(values$DT$x))
+      }
+    }
+    
     ggp = ggplot(values$DT, aes(x = x, y = y)) +
       # geom_point(aes(color = color,
       #                shape = shape), size = 5) +
@@ -39,12 +50,16 @@ server <- function(input, output, session) {
       #scale_color_discrete(drop = FALSE) +
       #scale_shape_discrete(drop = FALSE) +
       labs(y = "probability of response", x = "X",
-           title = "Best FP fit")
+           title = "Best FP fit") +
+      geom_abline(slope = 0, intercept = 0.5, linetype = 4) +
+      annotate(geom = "text", x = input$fp_bound, y = 0.55, label = "ED50")
     
     
     # if there non NA values for the predicted values, plot these as well
-    if (sum(!is.na(values$DT$yhat)) > 0)
+    if (sum(!is.na(values$DT$yhat)) > 0) {
       ggp = ggp + geom_line(aes(x=x, y=yhat))
+    }
+    
     
     # display plot
     ggp
@@ -104,6 +119,12 @@ server <- function(input, output, session) {
     else if (input$fpdegree == 3) {
       out = fitted_logistic_fp3(successes, model_data$x, frac.powers)
     }
+    else if (input$fpdegree == "Standard quadratic") {
+      out = standard_quad(successes, model_data$x)
+    }
+    else if (input$fpdegree == "Standard cubic") {
+      out = standard_cubic(successes, model_data$x)
+    }
     
     
     # save to reactive object
@@ -116,9 +137,11 @@ server <- function(input, output, session) {
     values$beta1 = out$beta1
     values$beta2 = out$beta2
     values$bound = input$fp_bound
+    values$aic = out$aic
+    values$bic = out$bic
     
     # save degree values
-    if (input$fpdegree == 3) {
+    if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
       values$beta3 = out$beta3
       values$p3  = out$p3
     }
@@ -136,16 +159,14 @@ server <- function(input, output, session) {
     updateNumericInput(session, "bound", value = values$bound)
     
     # set cubic options to NA if quadratic model is fit
-    if (input$fpdegree == 2) {
+    if (input$fpdegree == 2 | input$fpdegree == "Standard quadratic") {
       updateNumericInput(session, "p3", value = NA)
       updateNumericInput(session, "b3", value = NA)
     }
-    else if (input$fpdegree == 3) {
+    else if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
       updateNumericInput(session, "p3", value = values$p3)
       updateNumericInput(session, "b3", value = values$beta3)
     }
-    
-    
   })
   
   output$model_out = renderPrint({
@@ -155,26 +176,19 @@ server <- function(input, output, session) {
       # print("No model")
       cat("No Model\n")
     }
-    else if (input$fpdegree == 2) {
-      # print("p1:")
-      # print(values$p1)
-      # print("p2:")
-      # print(values$p2)
-      # print("beta0:")
-      # print(values$beta0)
-      # print("beta1:")
-      # print(values$beta1)
-      # print("beta2:")
-      # print(values$beta2)
+    else if (input$fpdegree == 2 | input$fpdegree == "Standard quadratic") {
+      
       cat("p1: ", values$p1, "\n",
           "p2: ", values$p2, "\n",
           "beta0: ", values$beta0, "\n",
           "beta1: ", values$beta1, "\n",
           "beta2: ", values$beta2, "\n",
+          "AIC: ", values$aic, "\n",
+          "BIC: ", values$bic, "\n",
           sep = ""
       )
     }
-    else if (input$fpdegree == 3) {
+    else if (input$fpdegree == 3 | input$fpdegree == "Standard cubic") {
       cat("p1: ", values$p1, "\n",
           "p2: ", values$p2, "\n",
           "p3: ", values$p3, "\n",
@@ -182,10 +196,36 @@ server <- function(input, output, session) {
           "beta1: ", values$beta1, "\n",
           "beta2: ", values$beta2, "\n",
           "beta3: ", values$beta3, "\n",
+          "AIC: ", values$aic, "\n",
+          "BIC: ", values$bic, "\n",
           sep = ""
       )
     }
   })
+  
+  # thanks to https://stackoverflow.com/a/44206615
+  # plotting checks current upload state and updates data if there is user
+  # submitted data available
+  observeEvent(input$upload, {
+    values$upload_state <- 'uploaded'
+  })
+  
+  file_input <- reactive({
+    if (is.null(values$upload_state)) {
+      return(NULL)
+    } else if (values$upload_state == 'uploaded') {
+      
+      # use this to update plot data
+      import_data = check_import_data(read.csv(input$upload$datapath))
+      values$DT = data.frame(
+        y = import_data$y,
+        x = import_data$x,
+        yhat = rep(NA, nrow(import_data))
+      )
+      return(NULL)
+    } 
+  })
+  
   
   
   ############################################################################
@@ -195,7 +235,8 @@ server <- function(input, output, session) {
   # set up reactive data structure
   values$OD <- list(
     design = numeric(),
-    plot = ggplot()
+    plot = ggplot(),
+    msg = character()
   )
   
   output$sens_plot = renderPlot({
@@ -241,100 +282,94 @@ server <- function(input, output, session) {
     # design options
     pts = input$pts
     bound = input$bound
+    #crit = input$crit
+    crit = "Dual" # always dual since D is special case
+    alpha = input$alpha
+    p = input$p
+    lam = input$lam
     
+    # to avoid crashing the app, need to check if EDp exists
+    if (crit == "EDp" | crit == "Dual") {
+      EDp_grad = grad_EDp(betas, powers, bound, p = p)
+      
+      if (is.na(EDp_grad$EDp)) {
+        # do nothing
+        values$OD$msg = "No X value found for EDp."
+        values$OD$plot = ggplot()
+        return()
+      }
+      # else continue
+    }
     # find optimal design
-    od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree)
+    od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p, lam)
     
     # store in reactive data
+    values$OD$msg = ""
     values$OD$design = od$design
     values$OD$plot = od$plot
     values$OD$val = od$value
-    
-    
   })
   
   # update design output
   output$design_out = renderPrint({
     
-    
-    
     obj_val = values$OD$val
     raw = values$OD$design
+    # crit = input$crit
+    crit = "Dual"
+    p = input$p
     
     # case if algorithm hasn't run
     if (length(raw) == 0) {
       cat("No design") 
     }
+    else if (values$OD$msg != "") {
+      cat("No X value for EDp.")
+    }
     else { # all other cases
       
       # display objective value
-      cat("-log(Det(M)) = ", obj_val, "\n", sep = "")
-      #print(obj_val)
+      if (crit == "D") {
+        cat("log(Det(M)) = ", obj_val, "\n", sep = "")
+      }
+      else if (crit == "EDp") {
+        cat("[EDp']^t M^{-1} EDp' = ", -obj_val, "\n", sep = "")
+        # display value for EDp
+        if (is.na(input$p3) | is.na(input$b3)) {
+          powers = as.numeric(c(input$p1, input$p2))
+          beta = c(input$b0, input$b1, input$b2)
+        }
+        else {
+          powers = as.numeric(c(input$p1, input$p2, input$p3))
+          beta = c(input$b0, input$b1, input$b2, input$b3)
+        }
+        
+        ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
+        cat("EDp = ", ED50, "\n", sep = "")
+        
+      } else if (crit == "Dual") {
+        cat("lambda*Cobj + (1-lambda)*Dobj = ", -obj_val, "\n", sep = "")
+        # display value for EDp
+        if (is.na(input$p3) | is.na(input$b3)) {
+          powers = as.numeric(c(input$p1, input$p2))
+          beta = c(input$b0, input$b1, input$b2)
+        }
+        else {
+          powers = as.numeric(c(input$p1, input$p2, input$p3))
+          beta = c(input$b0, input$b1, input$b2, input$b3)
+        }
+        
+        ED50 = grad_EDp(beta, powers, input$bound, p)$EDp
+        cat("EDp = ", ED50, "\n", sep = "")
+      }
       
       l = length(raw)
       
-      # purge points with zero weight
-      if (sum(raw[(l/2 + 1):l]==0) > 0) {
-        x_indices = which(raw[(l/2 + 1):l]==0)
-        w_indices = x_indices + l/2
-        raw = raw[,-c(x_indices, w_indices)]
-        l = length(raw)
-        cat("Purged points with weight 0\n")
-      }
-      
-      
-      # combine weights of identical points
-      # sort as well
-      xs = raw[1:(l/2)]
-      ws = raw[(l/2+1):l]
-      if (length(unique(xs)) != length(xs)) {
-        dups = xs[duplicated(xs)] # keep track of dups
-        for (d in dups) { # iterate through and combine weights
-          indices = xs == d
-          new_w = sum(ws[indices]) # add w's for a specific duplicate
-          ws[indices] = new_w # update w's; will drop later
-        }
-        xs = unique(xs) # remove duplicates
-        ws = unique(ws)
-        
-        raw = c(xs, ws)
-        l = length(raw)
-        #print("Combined identical points")
-        cat("Combined identical points\n")
-      }
-      
-      
-      
-      # labeling
-      # probably a better way to do this
-      # labs is a function => call it labbs
-      labbs = character(l)
-      for (i in 1:(l/2)) {
-        labbs[i] = paste("x", toString(i), sep = "")
-      }
-      for (i in (l/2 + 1):l) {
-        labbs[i] = paste("w", toString(i-l/2), sep = "")
-      }
-      
-      # magic
-      raw = c(raw)
-      
-      # sort by x's
-      raw_x = raw[1:(l/2)]
-      raw_w = raw[(l/2 + 1):l]
-      r = rank(raw_x)
-      raw_x = raw_x[r]
-      raw_w = raw_w[r]
-      raw = c(raw_x, raw_w)
-      
-      names(raw) = labbs
-      
-      out = raw
-      #raw
+      labbs = names(raw)
       cat(labbs[1:(l/2)], "\n", sep = "    ")
-      cat(round(out[1:(l/2)], 3), "\n")
+      cat(round(raw[1:(l/2)], 3), "\n")
       cat(labbs[(l/2 + 1):l], "\n", sep = "    ")
-      cat(round(out[(l/2 + 1):l], 3))
+      cat(round(raw[(l/2 + 1):l], 3))
     }
     
   })
