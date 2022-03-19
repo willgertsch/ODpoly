@@ -69,3 +69,10 @@ powers = c(2, 2, 2)
 beta = c(1.002221, 0.545415, -0.601232, 0.1635648)
 grad_EDp(beta, powers, bound, p)
 
+# problematic real world issue
+powers = c(1,2,3)
+beta = c(-23.1, 17.7, -4.7, 0.41)
+bound = 5
+p = 0.25
+grad_EDp(beta, powers, bound, p)
+
