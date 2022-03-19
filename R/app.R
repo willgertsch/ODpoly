@@ -120,18 +120,19 @@ ODpolyApp <- function(...) {
            An experimental design \\(\\xi\\) may be expressed as a collection of design points \\(x_1, \\dots, x_k\\) and weights \\(w_1, \\dots, w_k\\)  for a fixed sample size \\(N\\).
            Multiplying \\(w_i\\) by \\(N\\) gives the approximate number of samples at predictor value \\(x_i\\).
            The design \\(\\xi\\) is optimal if it maximizes or minimizes some function of the model information matrix \\(M(\\beta, \\mathbf{p})\\).
-           For example, D-optimality maximizes
+           In this app, we use a dual objective design criterion defined as
            $$
-           \\Psi(M(\\beta, \\mathbf{p})) = \\log (|M(\\beta, \\mathbf{p})|)
+           \\Psi_{dual}(M) = \\frac{(1-\\lambda)}{p} \\log (|M|) - \\lambda \\log \\left(\\nabla g(\\beta)' M^{-1} \\nabla g(\\beta) \\right)
            $$
-           The D-optimal design is the design that minimizes the volume of confidence ellipsoid for the regression parameters.
+           The dual objective optimizes estimation of a percentile of the dose response curve and general paramter estimation by combining c and D optimality criteria.
+           The weight parameter \\(\\lambda\\) denotes relative importance of each objective and a D optimal design may be obtained by setting \\(\\lambda = 0\\).
            Since the information matrix depends on values of \\(\\beta\\) and \\(\\mathbf{p}\\), the design is locally optimal.
            Values for \\(\\beta\\) and \\(\\mathbf{p}\\) can be chosen based on previous studies or on other prior information.
            "),
     tags$p("
-           To check if a design is locally D-optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
+           To check if a design is locally optimal, we can use a result called the equivalence theorem. The theorem says that the design is optimal if
            $$
-           ch(x) = \\frac{\\exp(\\eta)}{(1+\\exp(\\eta))^2} f(x)'M(\\beta, \\mathbf{p}) f(x) - p \\leq 0
+           ch(x) = \\frac{(1-\\lambda)}{p} \\sigma(x) b(x)' M^{-1} b(x) + \\lambda \\frac{\\left(\\sqrt{\\sigma(x)} b(x)' M^{-1} \\nabla g(\\beta)\\right)^2 }{\\nabla g(\\beta)' M^{-1} \\nabla g(\\beta)} - 1 \\leq 0
            $$
            for all values of \\( x\\) in the design space with equality at the optimal design points and where \\(p\\) is the number of regression coefficients.
            Plotting \\(ch(x)\\) provides a simple graphical check of optimality.
@@ -210,7 +211,7 @@ ODpolyApp <- function(...) {
                "Find the optimal design"
              ),
              tags$p(
-               "This app allows the user to find locally D-optimal designs for fractional polynomials using a variety of metaheuristic optimization algorithms.
+               "This app allows the user to find dual objective designs for fractional polynomials using a variety of metaheuristic optimization algorithms.
                Usage is as follows:"
              ),
              tags$ol(
@@ -225,7 +226,8 @@ ODpolyApp <- function(...) {
                tags$li("Select the desired upper bound for the design. This should be set based on the context of the problem. 
                        For example, in clinical trials the upper bound could be the maximum safe dosage.
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
-               tags$li("Choose a design criterion. Note that for EDp designs, the percentile must exist."),
+               tags$li("Select a percentile for the c-optimality criterion."),
+               tags$li("Choose a lambda value to set the relative importance of each objective. Lambda = 0 denotes a D-optimal design while labmda = 1 denotes a c-optimal design."),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
@@ -248,7 +250,7 @@ ODpolyApp <- function(...) {
                  numericInput("swarm", "Swarm size", 100, 1, 10e5, 1),
                  numericInput("pts", "Max design points", 4, 1, 10, 1),
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
-                 selectInput("crit", "Design Criterion", c("D", "EDp", "Dual"), selected = "D"),
+                 #selectInput("crit", "Design Criterion", c("D", "EDp", "Dual"), selected = "D"),
                  numericInput("p", "ED Percentile", 0.5, 0.01, .99, 0.01),
                  numericInput("lam", "Lambda", 0.5, 0, 1, 0.01)
                ),
@@ -539,7 +541,8 @@ ODpolyApp <- function(...) {
       # design options
       pts = input$pts
       bound = input$bound
-      crit = input$crit
+      #crit = input$crit
+      crit = "Dual" # always dual since D is special case
       alpha = input$alpha
       p = input$p
       lam = input$lam
@@ -571,6 +574,8 @@ ODpolyApp <- function(...) {
 
       obj_val = values$OD$val
       raw = values$OD$design
+      # crit = input$crit
+      crit = "Dual"
       
       # case if algorithm hasn't run
       if (length(raw) == 0) {
@@ -582,10 +587,10 @@ ODpolyApp <- function(...) {
       else { # all other cases
         
         # display objective value
-        if (input$crit == "D") {
+        if (crit == "D") {
           cat("log(Det(M)) = ", obj_val, "\n", sep = "")
         }
-        else if (input$crit == "EDp") {
+        else if (crit == "EDp") {
           cat("[EDp']^t M^{-1} EDp' = ", -obj_val, "\n", sep = "")
           # display value for EDp
           if (is.na(input$p3) | is.na(input$b3)) {
@@ -600,7 +605,7 @@ ODpolyApp <- function(...) {
           ED50 = grad_EDp(beta, powers, input$bound, p = p)$EDp
           cat("EDp = ", ED50, "\n", sep = "")
           
-        } else if (input$crit == "Dual") {
+        } else if (crit == "Dual") {
           cat("lambda*Cobj + (1-lambda)*Dobj = ", -obj_val, "\n", sep = "")
           # display value for EDp
           if (is.na(input$p3) | is.na(input$b3)) {
