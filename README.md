@@ -13,7 +13,8 @@ devtools::install_github("willgertsch/ODpoly")
 ```
 
 ## List of current features
-- Find locally D-optimal designs for given coefficient and powers.
+- Find locally dual objective designs for given coefficient and powers.
+- Can specify dual objective criteria to change balance between D and c optimality.
 - Supports degree 2 and 3 fractional polynomials.
 - Fractional polynomial mini-app that allows the user to fit a fractional polynomial by specifying probability of response data on a graph.
 - Uses metaheuristic optimization algorithms from the `metaheuristicOpt` package. The best algorithms for this design problem are selected for use in the Shiny app.
