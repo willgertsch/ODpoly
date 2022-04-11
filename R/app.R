@@ -434,7 +434,7 @@ ODpolyApp <- function(...) {
             "beta1: ", values$beta1, "\n",
             "beta2: ", values$beta2, "\n",
             "AIC: ", values$aic, "\n",
-            "BIC: ", values$bic, "\n",
+            #"BIC: ", values$bic, "\n",
             sep = ""
             )
       }
@@ -447,7 +447,7 @@ ODpolyApp <- function(...) {
             "beta2: ", values$beta2, "\n",
             "beta3: ", values$beta3, "\n",
             "AIC: ", values$aic, "\n",
-            "BIC: ", values$bic, "\n",
+            #"BIC: ", values$bic, "\n",
             sep = ""
         )
       }
