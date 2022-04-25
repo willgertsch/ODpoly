@@ -3,10 +3,10 @@
 library(bench)
 
 # parameter space
-algorithms = c("DE", "PSO", "GWO", "HS", "MFO")
+algorithms = c("DE", "PSO", "GWO", "HS")
 iterations = c(50, 100, 200, 500, 1000)
 swarms = c(20, 50, 100)
-pts = c(2, 3, 4)
+pts = c(3, 4, 5)
 
 # problems
 # problem 1: standard quad 3 pt design inspired from Fornius
@@ -46,7 +46,7 @@ bound6 = 100
 # out$plot
 
 # storage
-N = length(algorithms) * length(iterations) * length(swarms) * length(pts) * 6
+N = length(algorithms) * length(iterations) * length(swarms) * length(pts) * 6 * 5
 sim_data = data.frame(
   algorithm = rep(NA, N),
   iterations = rep(NA, N),
@@ -54,8 +54,7 @@ sim_data = data.frame(
   design_pts = rep(NA, N),
   problem = rep(NA, N),
   obj_value = rep(NA, N),
-  median_time = rep(NA, N),
-  mem_alloc = rep(NA, N)
+  time = rep(NA, N)
 )
 
 # start_time = Sys.time()
@@ -64,81 +63,80 @@ sim_data = data.frame(
 # end_time = Sys.time()
 # end_time - start_time
 
-# bench::mark(out = ODpoly(power6, beta6, alg = "DE", iter = 1000, swarm = 100, pts = 4,
-#                                 bound = bound6, degree = 3, crit = "D"))
 
 # main loop
+start_time = Sys.time()
 set.seed(445)
 i = 1
-for (s in 1:5) {
+for (n in 1:5) {
   for (algo in algorithms) {
     for (iter in iterations) {
       for (ss in swarms) {
         for (pt in pts) {
           # problem 1
-          out = mark(ODpoly(power1, beta1, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound1, degree = 2, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power1, beta1, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound1, degree = 2, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           # problem 2
-          out = mark(ODpoly(power2, beta2, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound2, degree = 2, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power2, beta2, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound2, degree = 2, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 2, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           # problem 3
-          out = mark(ODpoly(power3, beta3, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound3, degree = 3, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power3, beta3, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound3, degree = 3, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 3, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           # problem 4
-          out = mark(ODpoly(power4, beta4, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound4, degree = 2, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power4, beta4, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound4, degree = 2, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 4, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           # problem 5
-          out = mark(ODpoly(power5, beta5, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound5, degree = 2, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power5, beta5, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound5, degree = 2, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 5, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           # problem 6
-          out = mark(ODpoly(power6, beta6, alg = algo, iter = iter, swarm = ss,
-                       pts = pt, bound = bound6, degree = 3, crit = "D"),
-                     iterations = 5)
-          val = out$result[[1]]$value
-          t = out$median
-          mem = out$mem_alloc
+          start_t = Sys.time()
+          out = ODpoly(power6, beta6, alg = algo, iter = iter, swarm = ss,
+                            pts = pt, bound = bound6, degree = 3, crit = "D")
+          val = out$value
+          end_t = Sys.time()
+          t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 6, val, t, mem)
+          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
           i = i + 1
           
           cat(i, "/", N, "\n")
@@ -147,6 +145,10 @@ for (s in 1:5) {
     }
   }
 }
+
+
+end_time = Sys.time()
+end_time - start_time
 
 # process data
 sim_data$iterations = as.numeric(sim_data$iterations)

@@ -6,10 +6,8 @@ frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
 metaheuristics = c(
   "Differential Evolution",
   "Particle Swarm Optimization",
-  "Fast DE",
   "Grey Wolf Optimizer",
-  "Harmony Search Algorithm",
-  "Moth Flame Optimizer"
+  "Harmony Search Algorithm"
   )
 
 
