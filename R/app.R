@@ -237,7 +237,7 @@ ODpolyApp <- function(...) {
                  selectInput("alg", "Algorithms", metaheuristics, selected = "Differential Evolution"),
                  numericInput("iter", "Iterations", 500, 1, 10e7, 1),
                  numericInput("swarm", "Swarm size", 20, 1, 10e5, 1),
-                 numericInput("pts", "Max design points", 4, 1, 10, 1),
+                 numericInput("pts", "Max design points", 3, 1, 10, 1),
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
                  #selectInput("crit", "Design Criterion", c("D", "EDp", "Dual"), selected = "D"),
                  numericInput("p", "ED Percentile", 0.5, 0.01, .99, 0.01),
