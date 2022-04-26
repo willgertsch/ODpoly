@@ -92,7 +92,7 @@ for (n in 1:5) {
           end_t = Sys.time()
           t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
+          sim_data[i, ] = c(algo, iter, ss, pt, 2, val, t)
           i = i + 1
           
           # problem 3
@@ -103,7 +103,7 @@ for (n in 1:5) {
           end_t = Sys.time()
           t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
+          sim_data[i, ] = c(algo, iter, ss, pt, 3, val, t)
           i = i + 1
           
           # problem 4
@@ -114,7 +114,7 @@ for (n in 1:5) {
           end_t = Sys.time()
           t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
+          sim_data[i, ] = c(algo, iter, ss, pt, 4, val, t)
           i = i + 1
           
           # problem 5
@@ -125,7 +125,7 @@ for (n in 1:5) {
           end_t = Sys.time()
           t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
+          sim_data[i, ] = c(algo, iter, ss, pt, 5, val, t)
           i = i + 1
           
           # problem 6
@@ -136,7 +136,7 @@ for (n in 1:5) {
           end_t = Sys.time()
           t = end_t - start_t
           
-          sim_data[i, ] = c(algo, iter, ss, pt, 1, val, t)
+          sim_data[i, ] = c(algo, iter, ss, pt, 6, val, t)
           i = i + 1
           
           cat(i, "/", N, "\n")
