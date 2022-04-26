@@ -91,3 +91,23 @@ d_processed %>%
 
 ## Conclusions
 DE seems to be the best choice in a majority of cases with 3 design points. It has the advantage of being fast and easily converging to good values. If the design had 4 points, then PSO seems to be a good choice. Problem 6 has 5 points with two that are very close to one another, which seems to lead to HS being the best performing algorithm on this problem. Overall, it seems that DE with a swarm size of 20 and 500 iterations works well for these problems, placing within the top 10 in all test cases. Start with 3 design points if unknown number of points?
+
+# Does increasing the number of design points help the algorithm?
+Plot first.
+```{r, warning = F}
+d %>%
+#  filter(swarm_size == 20, iterations == 1000) %>%
+ggplot(., aes(x = as.factor(design_pts), y = obj_value, 
+                        color = algorithm, shape = algorithm)) +
+  geom_point() + geom_smooth(aes(x = as.factor(design_pts), y = obj_value, group = algorithm), se = F) +
+  facet_wrap(~problem, scales = "free") +
+  labs(x = "Number of design points", y = "Obj value", 
+       title = "Algorithm perfomance by number of design points for each problem") +
+  theme_bw()
+```
+It seems that increasing the number of design points beyond the optimal number either does nothing or results in a slight loss of performance. Plot 2 actually shows an increase when moving to the correct number of design points. Changing algorithms seems like a better strategy. Specifying the correct number seems important for DE especially.
+
+# Memory usage
+Not recording in this simulation run, but I did other runs and found that PSO uses significantly more memory than DE.
+
+
