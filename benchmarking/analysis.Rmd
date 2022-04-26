@@ -1,0 +1,93 @@
+---
+title: "Analysis of simulation study"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# load data
+d = read_csv("sim1.csv")
+d = d[, -1] # drop useless first column
+```
+
+```{r}
+# process data
+# get median run times and objectives
+d_processed = d %>%
+  group_by(algorithm, iterations, swarm_size, design_pts, problem) %>%
+  filter(obj_value > -Inf) %>%
+  summarise(median_obj_value = median(obj_value), median_time = median(time),
+            var_obj_value = var(obj_value), var_time = var(time))
+```
+
+# Best algorithm by problem
+Sorting by order of median objective value, median time, variance of objective value, and then variance of median time. This order was chosen because variances for best answers tended to be small.
+## Problem 1:
+```{r}
+d_processed %>%
+  filter(problem == 1) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Problem 2:
+```{r}
+d_processed %>%
+  filter(problem == 2) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Problem 3:
+```{r}
+d_processed %>%
+  filter(problem == 3) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Problem 4:
+```{r}
+d_processed %>%
+  filter(problem == 4) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Problem 5:
+```{r}
+d_processed %>%
+  filter(problem == 5) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Problem 6:
+```{r}
+d_processed %>%
+  filter(problem == 6) %>%
+  mutate(median_obj_value = round(median_obj_value, 6)) %>% 
+  arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
+  select(-problem) %>%
+  head(10)
+```
+
+## Conclusions
+DE seems to be the best choice in a majority of cases with 3 design points. It has the advantage of being fast and easily converging to good values. If the design had 4 points, then PSO seems to be a good choice. Problem 6 has 5 points with two that are very close to one another, which seems to lead to HS being the best performing algorithm on this problem. Overall, it seems that DE with a swarm size of 20 and 500 iterations works well for these problems, placing within the top 10 in all test cases. Start with 3 design points if unknown number of points?
