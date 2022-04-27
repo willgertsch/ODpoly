@@ -7,17 +7,18 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include = F}
 library(tidyverse)
+library(knitr)
 ```
 
-```{r}
+```{r, include=F}
 # load data
 d = read_csv("sim1.csv")
 d = d[, -1] # drop useless first column
 ```
 
-```{r}
+```{r, include = F}
 # process data
 # get median run times and objectives
 d_processed = d %>%
@@ -27,74 +28,86 @@ d_processed = d %>%
             var_obj_value = var(obj_value), var_time = var(time))
 ```
 
+# Experimental setup
+For this experiment, I considered 4 different variables and their effect on objective value obtained and time taken. The variables are: algorithm (DE, PSO, GWO, HS), number of iterations(50, 100, 200, 500, 1000), number of initial design points (3, 4, 5), and swarm size (20, 50, 100). Each combination of variables was run 5 times to get 5 replicates. 
+
+I tested on 6 different problems. Problem 1 is standard quadratic model with 3 design points. Problem 2 is a standard quadratic with 4 design points. Problem 3 is a standard cubic with 4 design points. Problems 4 and 5 are degree 2 fractional polynomials with 3 design points. Problem 6 is a cubic fraction polynomial approximating a sigmoidal shape where the optimal design has 5 points with 2 points very close together.
+
 # Best algorithm by problem
-Sorting by order of median objective value, median time, variance of objective value, and then variance of median time. This order was chosen because variances for best answers tended to be small.
-## Problem 1:
-```{r}
+I found the top 10 parameter combinations for each problem. Sorting by order of median objective value, median time, variance of objective value, and then variance of median time. This order was chosen because variances for best answers tended to be small.
+
+## Problem 1: standard quadratic, 3 points
+```{r, echo = F}
 d_processed %>%
   filter(problem == 1) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
-## Problem 2:
-```{r}
+## Problem 2: standard quadratic, 4 points
+```{r, echo = F}
 d_processed %>%
   filter(problem == 2) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
-## Problem 3:
-```{r}
+## Problem 3: standard cubic
+```{r, echo = F}
 d_processed %>%
   filter(problem == 3) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
-## Problem 4:
-```{r}
+## Problem 4: degree 2 FP
+```{r, echo = F}
 d_processed %>%
   filter(problem == 4) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
-## Problem 5:
-```{r}
+## Problem 5:degree 2 FP
+```{r, echo = F}
 d_processed %>%
   filter(problem == 5) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
-## Problem 6:
-```{r}
+## Problem 6: degree 3 FP
+```{r, echo = F}
 d_processed %>%
   filter(problem == 6) %>%
   mutate(median_obj_value = round(median_obj_value, 6)) %>% 
   arrange(desc(median_obj_value), median_time, var_obj_value, var_time) %>%
   select(-problem) %>%
-  head(10)
+  head(10) %>%
+  kable()
 ```
 
 ## Conclusions
-DE seems to be the best choice in a majority of cases with 3 design points. It has the advantage of being fast and easily converging to good values. If the design had 4 points, then PSO seems to be a good choice. Problem 6 has 5 points with two that are very close to one another, which seems to lead to HS being the best performing algorithm on this problem. Overall, it seems that DE with a swarm size of 20 and 500 iterations works well for these problems, placing within the top 10 in all test cases. Start with 3 design points if unknown number of points?
+DE seems to be the best choice in a majority of cases with 3 design points. It has the advantage of being fast and easily converging to good values. If the design had 4 points, then PSO seems to be a good choice. Problem 6 has 5 points with two that are very close to one another, which seems to lead to HS being the best performing algorithm on this problem. Overall, it seems that DE with a swarm size of 20 and 1000 iterations works well for these problems, placing within the top 10 in all test cases. Start with 3 design points if unknown number of points?
 
 # Does increasing the number of design points help the algorithm?
 Plot first.
-```{r, warning = F}
+```{r, warning = F, echo = F}
 d %>%
 #  filter(swarm_size == 20, iterations == 1000) %>%
 ggplot(., aes(x = as.factor(design_pts), y = obj_value, 
