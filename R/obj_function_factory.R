@@ -96,7 +96,7 @@ obj_function_factory = function(powers, betas, degree = 2, crit = "D", bound, p,
           return(-Inf)
         }
         Minv = solve(M)
-        obj_value = - log(t(dg) %*% Minv %*% dg) # get as close to zero as possible
+        obj_value = - suppressWarnings(log(t(dg) %*% Minv %*% dg)) # get as close to zero as possible
       }
       else if (crit == "Dual") {
         if (class(try(solve(M),silent=T))[1]!="matrix") {

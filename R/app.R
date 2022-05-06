@@ -216,7 +216,9 @@ ODpolyApp <- function(...) {
                        For example, in clinical trials the upper bound could be the maximum safe dosage.
                        Large upper bounds may cause issues, so transforming X to another scale maybe helpful"),
                tags$li("Select a percentile for the c-optimality criterion."),
-               tags$li("Choose a lambda value to set the relative importance of each objective. Lambda = 0 denotes a D-optimal design while labmda = 1 denotes a c-optimal design."),
+               tags$li("Choose a lambda value to set the relative importance of each objective. 
+                       Lambda = 0 denotes a D-optimal design while lambda = 1 denotes a c-optimal design.
+                       Checking the box below will also compute the D-optimal design and return the relative D-efficiency of the dual design."),
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
@@ -241,7 +243,8 @@ ODpolyApp <- function(...) {
                  numericInput("bound", "Upper bound", 10, 1, NA, 1),
                  #selectInput("crit", "Design Criterion", c("D", "EDp", "Dual"), selected = "D"),
                  numericInput("p", "ED Percentile", 0.5, 0.01, .99, 0.01),
-                 numericInput("lam", "Lambda", 0.5, 0, 1, 0.01)
+                 numericInput("lam", "Lambda", 0.5, 0, 1, 0.01),
+                 checkboxInput("find_eff", "Compute D efficiency and C objective value", value = F)
                ),
                mainPanel(
                  #radioButtons("color", "Pick Color", c("Pink", "Green", "Blue")),
@@ -551,6 +554,25 @@ ODpolyApp <- function(...) {
       # find optimal design
       od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p, lam)
       
+      # compute design efficiencies
+      if (input$find_eff) {
+        
+        # compute D and C objectives
+        D_obj_func = obj_function_factory(powers, betas, degree, "D", bound, p, lam)
+        C_obj_func = obj_function_factory(powers, betas, degree, "EDp", bound, p, lam)
+        Dobj_val = D_obj_func(od$design)
+        Cobj_val = C_obj_func(od$design)
+        
+        # need to find optimal EDp and D optimal designs
+        D_od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, "D", p, lam)
+        #C_od = ODpoly(powers, betas, alg, iter, swarm, 2, bound, degree, "EDp", p, lam)
+        C_od_val = C_obj_func(c(EDp_grad$EDp, 1)) # optimal design places all weight at EDp
+        # need to expo since we optimized logdet
+        values$OD$Deff = (exp(Dobj_val)/exp(D_od$value))^(1/(degree + 1))
+        #values$OD$Ceff = exp(Cobj_val)/exp(C_od_val)
+        values$OD$Ceff = exp(-Cobj_val) # just return obj val because matrix singularity
+      }
+      
       # store in reactive data
       values$OD$msg = ""
       values$OD$design = od$design
@@ -609,6 +631,13 @@ ODpolyApp <- function(...) {
           ED50 = grad_EDp(beta, powers, input$bound, p)$EDp
           cat("EDp = ", ED50, "\n", sep = "")
         }
+        
+        # show efficiency values
+        if (input$find_eff) {
+          cat("D efficiency: ", values$OD$Deff, "\n",
+              "C objective value: ", values$OD$Ceff, "\n", sep = "")
+        }
+        
         
         l = length(raw)
 
