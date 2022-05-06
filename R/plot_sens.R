@@ -35,6 +35,7 @@ plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, 
     geom_line(color = "blue") + 
     geom_hline(yintercept = 0) +
     geom_point(aes(x = design_points, y = pts_ch), col = "red", size = 3) + 
+    geom_vline(xintercept = design_points, color = "red", linetype = "dashed") +
     theme_bw() +
     labs(title = "Equivalence Theorem Check") +
     xlab("x") + ylab("ch(x)")

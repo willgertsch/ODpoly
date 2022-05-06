@@ -222,7 +222,7 @@ ODpolyApp <- function(...) {
                tags$li("Click the \"Find\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
-               tags$li("A plot of the ch(x) function will also be displayed. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed.")
+               tags$li("A plot of the ch(x) function will also be displayed along with a plot of the dose-response relationship implied by the local values of the parameters. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed.")
                
              ),
              
@@ -255,6 +255,7 @@ ODpolyApp <- function(...) {
                  #actionButton("clear", "Clear all"),
                  #verbatimTextOutput("model_out"),
                  plotOutput("sens_plot"),
+                 plotOutput("model_plot"),
                  actionButton("find", "Find"),
                  waiter::use_waiter(),
                  verbatimTextOutput("design_out")
@@ -487,16 +488,32 @@ ODpolyApp <- function(...) {
     values$OD <- list(
       design = numeric(),
       plot = ggplot(),
+      response_plot = ggplot(),
       msg = character()
     )
     
+    # sensitivity plot
     output$sens_plot = renderPlot({
       
       # load from reactive data
       ggp = values$OD$plot
       
+      
       # display plot
       ggp
+    })
+    
+    # plot of the predicted probabiliy from the local parameter values
+    output$model_plot = renderPlot({
+      
+      
+      # load from reactive data
+      ggp = values$OD$response_plot
+      
+      
+      # display plot
+      ggp
+      
     })
     
     # action for find button
@@ -522,8 +539,7 @@ ODpolyApp <- function(...) {
         betas = c(input$b0, input$b1, input$b2, input$b3)
         degree = 3
       }
-      
-      
+        
       # algorithm options
       alg = metaheur_dict(input$alg)
       
@@ -565,18 +581,72 @@ ODpolyApp <- function(...) {
         
         # need to find optimal EDp and D optimal designs
         D_od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, "D", p, lam)
-        #C_od = ODpoly(powers, betas, alg, iter, swarm, 2, bound, degree, "EDp", p, lam)
         C_od_val = C_obj_func(c(EDp_grad$EDp, 1)) # optimal design places all weight at EDp
         # need to expo since we optimized logdet
         values$OD$Deff = (exp(Dobj_val)/exp(D_od$value))^(1/(degree + 1))
-        #values$OD$Ceff = exp(Cobj_val)/exp(C_od_val)
         values$OD$Ceff = exp(-Cobj_val) # just return obj val because matrix singularity
       }
+      
+      # plot dose-response
+      # define a powers vector that includes 0
+      zpowers = c(0, powers)
+      # x values to plot
+      x = seq(0.1, input$bound, length.out = 100)
+      
+      if (degree == 2) {
+        # x1 is the 2nd term in the polynomial
+        x1 = H(2, x, zpowers)
+        x2 = H(3, x, zpowers)
+        
+        # compute eta
+        eta = betas[1] + betas[2] * x1 + betas[3] * x2
+        
+        # compute eta for design points
+        l = length(od$design)
+        design_points = od$design[1:(l/2)]
+        x1 = H(2, design_points, zpowers)
+        x2 = H(3, design_points, zpowers)
+        eta_d = betas[1] + betas[2] * x1 + betas[3] * x2
+      }
+      else if (degree == 3) {
+        x1 = H(2, x, zpowers)
+        x2 = H(3, x, zpowers)
+        x3 = H(4, x, zpowers)
+        
+        # compute eta
+        eta = betas[1] + betas[2] * x1 + betas[3] * x2 + betas[4] * x3
+        
+        # compute eta for design points
+        l = length(od$design)
+        design_points = od$design[1:(l/2)]
+        x1 = H(2, design_points, zpowers)
+        x2 = H(3, design_points, zpowers)
+        x3 = H(4, design_points, zpowers)
+        eta_d = betas[1] + betas[2] * x1 + betas[3] * x2 + betas[4] * x3
+      }
+      
+      # construct data for plotting
+      plot_data = data.frame(
+        x = x,
+        eta = eta
+      )
+      
+      plot_data$y = 1/(1 + exp(-plot_data$eta))
+      pts_y = 1/(1+exp(-eta_d))
+      
+      response_plot = ggplot(NULL, aes(x = plot_data$x, y = plot_data$y)) +
+        geom_line(color = "blue") +
+        geom_point(aes(x = design_points, y = pts_y), col = "red", size = 3) + 
+        geom_vline(xintercept = design_points, color = "red", linetype = "dashed") +
+        theme_bw() +
+        labs(x = "x", y = "probability of response",
+             title = "Dose-response relationship")
       
       # store in reactive data
       values$OD$msg = ""
       values$OD$design = od$design
       values$OD$plot = od$plot
+      values$OD$response_plot = response_plot
       values$OD$val = od$value
     })
     
