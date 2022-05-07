@@ -223,7 +223,9 @@ ODpolyApp <- function(...) {
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
                tags$li("A plot of the ch(x) function will also be displayed along with a plot of the dose-response relationship implied by the local values of the parameters. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed."),
-               tags$li("Alternatively, clicking \"Plot efficiencies\" will find the optimal design along a grid of lambda values and plot the resulting efficiencies for each objective. This is a useful tool to evaluate how the choice of lambda corresponds to relative importance of each objective.")
+               tags$li("Alternatively, clicking \"Plot efficiencies\" will find the optimal design along a grid of lambda values and plot the resulting efficiencies for each objective.
+                       Individual designs will be found with 1000 iterations, a swarm size of 50, and the same number of design points and upper bound as specified.
+                       This is a useful tool to evaluate the effect of lambda on the importance of each objectice.")
                
              ),
              

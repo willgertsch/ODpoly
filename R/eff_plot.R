@@ -84,8 +84,7 @@ eff_plot = function(betas, powers, bound, pts,
     labs(x = "lambda", y = "",
          title = "D-efficiency and C objective value by lambda") +
     theme(legend.title=element_blank()) +
-    scale_x_continuous(breaks = lam.grid) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1))
+    scale_x_continuous(breaks = lam.grid)
   
   plt2 = ggplot(subset(plot_data2, type != "var(c'beta)"), 
                 aes(x = lambda, y= value, color = type)) +
