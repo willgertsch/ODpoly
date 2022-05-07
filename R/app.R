@@ -219,10 +219,11 @@ ODpolyApp <- function(...) {
                tags$li("Choose a lambda value to set the relative importance of each objective. 
                        Lambda = 0 denotes a D-optimal design while lambda = 1 denotes a c-optimal design.
                        Checking the box below will also compute the D-optimal design and return the relative D-efficiency of the dual design."),
-               tags$li("Click the \"Find\" button to find the optimal design given the inputs.
+               tags$li("Click the \"Find design\" button to find the optimal design given the inputs.
                        The algorithm should take 10-20 seconds to find the design for default algorithm options.
                        Design points and weights are displayed rounded to 3 decimal places"),
-               tags$li("A plot of the ch(x) function will also be displayed along with a plot of the dose-response relationship implied by the local values of the parameters. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed.")
+               tags$li("A plot of the ch(x) function will also be displayed along with a plot of the dose-response relationship implied by the local values of the parameters. If ch(x) = 1 for all x, this indicates a matrix singularity and ch(x) cannot be displayed."),
+               tags$li("Alternatively, clicking \"Plot efficiencies\" will find the optimal design along a grid of lambda values and plot the resulting efficiencies for each objective. This is a useful tool to evaluate how the choice of lambda corresponds to relative importance of each objective.")
                
              ),
              
@@ -256,7 +257,8 @@ ODpolyApp <- function(...) {
                  #verbatimTextOutput("model_out"),
                  plotOutput("sens_plot"),
                  plotOutput("model_plot"),
-                 actionButton("find", "Find"),
+                 actionButton("find", "Find design"),
+                 actionButton("plot_eff", "Plot efficiencies"),
                  waiter::use_waiter(),
                  verbatimTextOutput("design_out")
                )
@@ -718,6 +720,40 @@ ODpolyApp <- function(...) {
         cat(round(raw[(l/2 + 1):l], 3))
       }
       
+    })
+    
+    observeEvent(input$plot_eff, {
+      
+      # set up spinny thing
+      waiter <- waiter::Waiter$new(id = "sens_plot",
+                                   html = spin_terminal(),
+                                   color = "grey"
+      )$show()
+      waiter$show()
+      on.exit(waiter$hide())
+      
+      # model pararms
+      # switch depending on if p3 or beta3 are missing
+      if (is.na(input$p3) | is.na(input$b3)) {
+        powers = as.numeric(c(input$p1, input$p2))
+        betas = c(input$b0, input$b1, input$b2)
+      }
+      else {
+        powers = as.numeric(c(input$p1, input$p2, input$p3))
+        betas = c(input$b0, input$b1, input$b2, input$b3)
+      }
+      
+      pts = input$pts
+      bound = input$bound
+      p = input$p
+      
+      # run efficiency plots
+      lam.grid = seq(0, 0.9, 0.1)
+      out = eff_plot(betas, powers, bound, pts, lam.grid, p)
+      
+      # display resulting plots
+      values$OD$plot = out$plot1
+      values$OD$response_plot = out$plot2
     })
   }
   
