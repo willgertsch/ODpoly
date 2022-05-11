@@ -536,13 +536,13 @@ ODpolyApp <- function(...) {
       if (is.na(input$p3) | is.na(input$b3)) {
         powers = as.numeric(c(input$p1, input$p2))
         betas = c(input$b0, input$b1, input$b2)
-        degree = 2
       }
       else {
         powers = as.numeric(c(input$p1, input$p2, input$p3))
         betas = c(input$b0, input$b1, input$b2, input$b3)
-        degree = 3
       }
+      
+      degree = length(powers)
         
       # algorithm options
       alg = metaheur_dict(input$alg)
@@ -594,6 +594,7 @@ ODpolyApp <- function(...) {
       # plot dose-response
       # define a powers vector that includes 0
       zpowers = c(0, powers)
+      
       # x values to plot
       x = seq(0.1, input$bound, length.out = 100)
       
@@ -659,8 +660,7 @@ ODpolyApp <- function(...) {
 
       obj_val = values$OD$val
       raw = values$OD$design
-      # crit = input$crit
-      crit = "Dual"
+      crit = "Dual" # always using dual criterion in app
       p = input$p
       
       # case if algorithm hasn't run
@@ -712,7 +712,6 @@ ODpolyApp <- function(...) {
               "C objective value: ", values$OD$Ceff, "\n", sep = "")
         }
         
-        
         l = length(raw)
 
         labbs = names(raw)
@@ -724,6 +723,7 @@ ODpolyApp <- function(...) {
       
     })
     
+    # runs eff_plot and shows both plots in the interface
     observeEvent(input$plot_eff, {
       
       # set up spinny thing
@@ -758,7 +758,6 @@ ODpolyApp <- function(...) {
       values$OD$response_plot = out$plot2
     })
   }
-  
   
   shinyApp(ui, server, ...)
 }
