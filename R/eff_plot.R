@@ -93,8 +93,7 @@ eff_plot = function(betas, powers, bound, pts,
     labs(x = "lambda", y = "",
          title = "D-efficiency vs c-efficiency by lambda") +
     theme(legend.title=element_blank()) +
-    scale_x_continuous(breaks = lam.grid) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1))
+    scale_x_continuous(breaks = lam.grid)
   
   # return
   return(list(plot1 = plt1, plot2 = plt2, designs = designs, sens_plots = plots))
