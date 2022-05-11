@@ -13,7 +13,7 @@ eff_plot = function(betas, powers, bound, pts,
                     lam.grid = seq(0.0, 1, 0.1), 
                     p = 0.5) {
   
-  degree = length(betas) - 1
+  degree = length(powers)
   
   # find optimal designs for each objective separately
   # D-optimal design
@@ -22,7 +22,7 @@ eff_plot = function(betas, powers, bound, pts,
   swarm = 50
   crit = 'D'
   cat("Finding D optimal design...\n")
-  out = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p)
+  out = ODpoly(powers, betas, alg, iter, swarm, pts, bound, crit, p)
   Dopt_value = out$value
   Dplot = out$plot
   
@@ -39,7 +39,7 @@ eff_plot = function(betas, powers, bound, pts,
     cat("Finding design for lambda = ", lam, "\n", sep = "")
     # find design for given lambda
     crit = "Dual"
-    out = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p,
+    out = ODpoly(powers, betas, alg, iter, swarm, pts, bound, crit, p,
                  lam = lam)
     # store result
     #append(plots, out$plot)
@@ -51,8 +51,8 @@ eff_plot = function(betas, powers, bound, pts,
   
   # compute objective values for each design found
   # need to comppute objective function values
-  D_func = obj_function_factory(powers, betas, degree, crit = 'D', bound, p, lam)
-  C_func = obj_function_factory(powers, betas, degree, crit = 'EDp', bound, p, lam)
+  D_func = obj_function_factory(powers, betas, crit = 'D', bound, p, lam)
+  C_func = obj_function_factory(powers, betas, crit = 'EDp', bound, p, lam)
   
   # compute objective values for each design in list
   Dobj_values = unlist(lapply(designs, D_func))

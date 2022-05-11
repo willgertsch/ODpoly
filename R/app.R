@@ -541,8 +541,6 @@ ODpolyApp <- function(...) {
         powers = as.numeric(c(input$p1, input$p2, input$p3))
         betas = c(input$b0, input$b1, input$b2, input$b3)
       }
-      
-      degree = length(powers)
         
       # algorithm options
       alg = metaheur_dict(input$alg)
@@ -553,7 +551,6 @@ ODpolyApp <- function(...) {
       # design options
       pts = input$pts
       bound = input$bound
-      #crit = input$crit
       crit = "Dual" # always dual since D is special case
       alpha = input$alpha
       p = input$p
@@ -572,21 +569,22 @@ ODpolyApp <- function(...) {
         # else continue
       }
       # find optimal design
-      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, crit, p, lam)
+      od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, crit, p, lam)
       
       # compute design efficiencies
       if (input$find_eff) {
         
         # compute D and C objectives
-        D_obj_func = obj_function_factory(powers, betas, degree, "D", bound, p, lam)
-        C_obj_func = obj_function_factory(powers, betas, degree, "EDp", bound, p, lam)
+        D_obj_func = obj_function_factory(powers, betas, "D", bound, p, lam)
+        C_obj_func = obj_function_factory(powers, betas, "EDp", bound, p, lam)
         Dobj_val = D_obj_func(od$design)
         Cobj_val = C_obj_func(od$design)
         
         # need to find optimal EDp and D optimal designs
-        D_od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, degree, "D", p, lam)
+        D_od = ODpoly(powers, betas, alg, iter, swarm, pts, bound, "D", p, lam)
         C_od_val = C_obj_func(c(EDp_grad$EDp, 1)) # optimal design places all weight at EDp
         # need to expo since we optimized logdet
+        degree = length(powers)
         values$OD$Deff = (exp(Dobj_val)/exp(D_od$value))^(1/(degree + 1))
         values$OD$Ceff = exp(-Cobj_val) # just return obj val because matrix singularity
       }
@@ -598,6 +596,7 @@ ODpolyApp <- function(...) {
       # x values to plot
       x = seq(0.1, input$bound, length.out = 100)
       
+      degree = length(powers)
       if (degree == 2) {
         # x1 is the 2nd term in the polynomial
         x1 = H(2, x, zpowers)

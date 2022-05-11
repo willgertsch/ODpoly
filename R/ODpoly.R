@@ -13,11 +13,13 @@
 # p: percentile for EDp designs
 # lam: weight parameter for dual objective designs
 library(metaheuristicOpt)
-ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound, 
-                  degree = 2, crit = 'D', p = 0.5, lam = 0) {
+ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
+                  crit = 'D', p = 0.5, lam = 0) {
+  
+  degree = length(powers)
   
   # define objective function
-  obj_func = obj_function_factory(powers, betas, degree, crit, bound, p, lam)
+  obj_func = obj_function_factory(powers, betas, crit, bound, p, lam)
   
   # separate flow for using RccpDE package
   
@@ -97,7 +99,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
   # plot sensitivity function
   step = bound/1000
   xs = seq(0.1, bound, step)
-  p = plot_sens(xs, out, betas, powers, degree, crit, bound, p, lam)
+  p = plot_sens(xs, out, betas, powers, crit, bound, p, lam)
   
   # return
   out = list(design = out, plot = p, value = c(sol$optimumValue))

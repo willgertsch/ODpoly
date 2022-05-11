@@ -4,7 +4,9 @@
 # betas: vector of coefficients
 # powers: vector of powers
 # dg: computed gradient for EDp
-sens = function(z, vars, betas, powers, degree = 2, crit = "D", bound, dg, lam) {
+sens = function(z, vars, betas, powers, crit = "D", bound, dg, lam) {
+  
+  degree = length(powers)
   
   # switch for different degree polynomials
   if (degree == 2) {

@@ -4,7 +4,7 @@
 # betas: vector of coefficients
 # powers: vector of powers
 library(ggplot2)
-plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, p, lam) {
+plot_sens = function(xvals, vars, betas, powers, crit = "D", bound, p, lam) {
   
   # if c-optimal design, compute gradient
   if (crit == "EDp" | crit == "Dual") {
@@ -16,8 +16,10 @@ plot_sens = function(xvals, vars, betas, powers, degree = 2, crit = "D", bound, 
     }
   }
   
+  degree = length(powers)
+  
   # compute sens function
-  yvals = sapply(xvals, sens, vars, betas, powers, degree, crit, bound, dg, lam)
+  yvals = sapply(xvals, sens, vars, betas, powers, crit, bound, dg, lam)
   
   # old base R plots
   # plot(yvals ~ xvals, type ="l")
