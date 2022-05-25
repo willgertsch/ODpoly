@@ -12,7 +12,6 @@
 # crit: design criterion to use
 # p: percentile for EDp designs
 # lam: weight parameter for dual objective designs
-library(metaheuristicOpt)
 ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
                   crit = 'D', p = 0.5, lam = 0) {
   
@@ -32,7 +31,7 @@ ODpoly = function(powers, betas, alg = "DE", iter, swarm, pts, bound,
   control = list(numPopulation = swarm, maxIter = iter)
   
   # find optimal design
-  sol = metaOpt(obj_func, optimType = "MAX", algorithm = alg, 
+  sol = metaheuristicOpt::metaOpt(obj_func, optimType = "MAX", algorithm = alg, 
                 numVar, rangeVar, control)
   
   

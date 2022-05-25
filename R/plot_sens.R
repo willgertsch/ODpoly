@@ -33,7 +33,7 @@ plot_sens = function(xvals, vars, betas, powers, crit = "D", bound, p, lam) {
   pts_ch = rep(0, l/2)
   
   # replaced with ggplot because can return plot object
-  p = ggplot(mapping = aes(y = yvals, x = xvals)) + 
+  p = ggplot2::ggplot(mapping = aes(y = yvals, x = xvals)) + 
     geom_line(color = "blue") + 
     geom_hline(yintercept = 0) +
     geom_point(aes(x = design_points, y = pts_ch), col = "red", size = 3) + 

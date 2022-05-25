@@ -33,9 +33,8 @@ grad_EDp = function(beta, powers, bound, p) {
   else
     stop("Polynomial not supported for finding EDp")
   
-  # find the roots
-  library(rootSolve)
-  roots = uniroot.all(f, c(0.1, bound), n=10000000, maxiter = 10000)
+  # find the roots using rootSolve package
+  roots = rootSolve::uniroot.all(f, c(0.1, bound), n=10000000, maxiter = 10000)
   
   # only interested in the minimum root found
   # return NA if no roots found

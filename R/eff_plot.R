@@ -9,6 +9,7 @@
 # bound: upper bound for experimental data
 # pts: number of design points
 # lam.grid: grid of lambdas to use for plot
+library(ggplot2)
 eff_plot = function(betas, powers, bound, pts,
                     lam.grid = seq(0.0, 1, 0.1), 
                     p = 0.5) {
@@ -77,7 +78,7 @@ eff_plot = function(betas, powers, bound, pts,
              rep("Approx. c-efficiency", length(lam.grid)))
   )
   
-  plt1 = ggplot(subset(plot_data2, type != "Approx. c-efficiency"), 
+  plt1 = ggplot2::ggplot(subset(plot_data2, type != "Approx. c-efficiency"), 
                 aes(x = lambda, y= value, color = type)) +
     geom_point() + geom_line() +
     theme_bw() +
@@ -86,7 +87,7 @@ eff_plot = function(betas, powers, bound, pts,
     theme(legend.title=element_blank()) +
     scale_x_continuous(breaks = lam.grid)
   
-  plt2 = ggplot(subset(plot_data2, type != "var(c'beta)"), 
+  plt2 = ggplot2::ggplot(subset(plot_data2, type != "var(c'beta)"), 
                 aes(x = lambda, y= value, color = type)) +
     geom_point() + geom_line() +
     theme_bw() +

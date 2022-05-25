@@ -1,5 +1,6 @@
 library(shiny)
-library(waiter)
+#library(waiter)
+library(ggplot2)
 
 # globals
 frac.powers = c(-2, -1, -1/2, 0, 1/2, 1, 2, 3)
@@ -296,7 +297,7 @@ ODpolyApp <- function(...) {
         }
       }
       
-      ggp = ggplot(values$DT, aes(x = x, y = y)) +
+      ggp = ggplot2::ggplot(values$DT, aes(x = x, y = y)) +
         # geom_point(aes(color = color,
         #                shape = shape), size = 5) +
         geom_point(color = "red", shape = "circle", size = 5, alpha = 1) +
@@ -491,8 +492,8 @@ ODpolyApp <- function(...) {
     # set up reactive data structure
     values$OD <- list(
       design = numeric(),
-      plot = ggplot(),
-      response_plot = ggplot(),
+      plot = ggplot2::ggplot(),
+      response_plot = ggplot2::ggplot(),
       msg = character()
     )
     
@@ -563,7 +564,7 @@ ODpolyApp <- function(...) {
         if (is.na(EDp_grad$EDp)) {
           # do nothing
           values$OD$msg = "No X value found for EDp."
-          values$OD$plot = ggplot()
+          values$OD$plot = ggplot2::ggplot()
           return()
         }
         # else continue
@@ -638,7 +639,7 @@ ODpolyApp <- function(...) {
       plot_data$y = 1/(1 + exp(-plot_data$eta))
       pts_y = 1/(1+exp(-eta_d))
       
-      response_plot = ggplot(NULL, aes(x = plot_data$x, y = plot_data$y)) +
+      response_plot = ggplot2::ggplot(NULL, aes(x = plot_data$x, y = plot_data$y)) +
         geom_line(color = "blue") +
         geom_point(aes(x = design_points, y = pts_y), col = "red", size = 3) + 
         geom_vline(xintercept = design_points, color = "red", linetype = "dashed") +
