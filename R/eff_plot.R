@@ -97,5 +97,6 @@ eff_plot = function(betas, powers, bound, pts,
     scale_x_continuous(breaks = lam.grid)
   
   # return
-  return(list(plot1 = plt1, plot2 = plt2, designs = designs, sens_plots = plots))
+  return(list(plot1 = plt1, plot2 = plt2, designs = designs, sens_plots = plots,
+              effs = plot_data2))
 }
