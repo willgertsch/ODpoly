@@ -1,6 +1,6 @@
 # objective function factory
 # generates a function for calculating the design criterion based on current solution vector
-obj_function_factory = function(powers, betas, crit = "D", bound, p, lam) {
+obj_function_factory = function(powers, betas, crit = "D", bound, p, lam=0) {
   
   # check input
   if (length(powers) != length(betas)-1) # make sure there is a coefficient for each power
