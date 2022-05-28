@@ -12,15 +12,18 @@
 library(ggplot2)
 eff_plot = function(betas, powers, bound, pts,
                     lam.grid = seq(0.0, 1, 0.1), 
-                    p = 0.5) {
+                    p = 0.5,
+                    alg = 'DE',
+                    iter = 1000,
+                    swarm = 50) {
   
   degree = length(powers)
   
   # find optimal designs for each objective separately
   # D-optimal design
-  alg = 'DE'
-  iter = 1000
-  swarm = 50
+  #alg = 'DE'
+  #iter = 1000
+  #swarm = 50
   crit = 'D'
   cat("Finding D optimal design...\n")
   out = ODpoly(powers, betas, alg, iter, swarm, pts, bound, crit, p)
@@ -96,7 +99,8 @@ eff_plot = function(betas, powers, bound, pts,
     theme(legend.title=element_blank()) +
     scale_x_continuous(breaks = lam.grid)
   
+  
   # return
   return(list(plot1 = plt1, plot2 = plt2, designs = designs, sens_plots = plots,
-              effs = plot_data2))
+              dat = plot_data2, obj_vals = plot_data))
 }
